@@ -9,6 +9,7 @@ from astropy.coordinates import SkyCoord
 import emcee
 import corner
 import matplotlib.pyplot as plt
+from scipy.optimize import brentq
 print('Import Complete')
 
 print('Load and Query')
@@ -40,7 +41,7 @@ Ecc = PSR.ECC
 Pb = PSR.PB * u.day
 if str(PSR.T0) == '--':
     TASC = Time(PSR.TASC, format='mjd')
-    T0 = Time(brentq(T0_find,
+    T0 = Time(brentq(orbfits.T0_find,
                      TASC.mjd, (TASC + Pb).mjd,
                      args=(TASC, -Om_peri, Pb, Ecc)),
               format='mjd')
@@ -74,11 +75,11 @@ ndim, nwalkers = 4, 40
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
-sampler.run_mcmc(pos, 100)
+sampler.run_mcmc(pos, 10000)
 
 print('Walk Complete')
 
-samples = sampler.chain[:, 10:, :].reshape((-1, ndim))
+samples = sampler.chain[:, 500:, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
