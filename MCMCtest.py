@@ -77,7 +77,7 @@ sampler.run_mcmc(pos, 1000)
 
 print('Walk Complete')
 
-
+samples = sampler.chain[:, :, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
