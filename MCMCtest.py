@@ -6,8 +6,8 @@ from astropy.time import Time
 import astropy.units as u
 import astropy.constants as const
 from astropy.coordinates import SkyCoord
-import emcee
 print('Import Complete')
+import emcee
 
 print('Load and Query')
 names=list(f[6:-4] for f in os.listdir('./binarytimestamps'))
