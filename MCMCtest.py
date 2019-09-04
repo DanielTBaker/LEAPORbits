@@ -74,11 +74,11 @@ ndim, nwalkers = 4, 40
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
-sampler.run_mcmc(pos, 10000)
+sampler.run_mcmc(pos, 100)
 
 print('Walk Complete')
 
-samples = sampler.chain[:, :, :].reshape((-1, ndim))
+samples = sampler.chain[:, 10:, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
@@ -94,3 +94,19 @@ for k in range(4):
     plt.title(para_names[k])
     plt.axhline(reals[k],color='k',linewidth=2)
     plt.savefig('%s_walk.png' %para_names[k])
+
+times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
+
+eta_fit = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, samples[:,0].mean()*u.deg, samples[:,1].mean()*u.deg, samples[:,2].mean()*u.deg,
+                   dp, samples[:,3].mean()*u.kpc, f0, pm_ra, pm_dec)
+eta_real = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
+                   dp, ds, f0, pm_ra, pm_dec)
+
+plt.figure()
+plt.plot_data(times.plot_data,eta_noisy,label='Data')
+plt.plot_data(times_curve.plot_data,eta_fit,label='Fit')
+plt.plot_data(times_curve.plot_data,eta_real,label='Real')
+plt.yscale('log')
+plt.xlabel('Date')
+plt.ylabel(r'$\nu$ ($ms/mHz^{2}$)')
+plt.title('Fit Results')
