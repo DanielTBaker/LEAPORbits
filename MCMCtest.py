@@ -54,7 +54,7 @@ inc = 20 * u.deg
 ds = dp / 2
 
 a = np.abs(A1 / np.sin(inc))
-eta_data = orbfits.eta_orb(srce,times, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
+eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                    dp, ds, f0, pm_ra, pm_dec)
 
 sigma = eta_data / 10
@@ -68,6 +68,6 @@ pool=Pool()
 
 ndim, nwalkers = 4, 40
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
-sampler = emcee.EnsembleSampler(nwalkers, ndim, lnprob, args=(eta_noisy,sigma,srce,times,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),pool=pool)
+sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),pool=pool)
 
 sampler.run_mcmc(pos, 1000, progress=True)

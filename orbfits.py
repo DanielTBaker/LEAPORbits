@@ -25,7 +25,7 @@ def E_proj_vel(srce,T):
     E_V_dec=unit_ddec.dot(earth_posvel[1]).to(u.km/u.s)
     return(E_V_ra,E_V_dec)
 
-def orb_proj_vel(time, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
+def orb_proj_vel(time,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
                        inc):
     Om_peri_cur = Om_peri + Om_peri_dot * (time - T0)
     times = time + np.linspace(0, Pb / 1e5, 2)
@@ -45,12 +45,12 @@ def orb_proj_vel(time, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
     V_dec = V_x2*np.sin(Om_orb) + V_y3*np.cos(Om_orb)
     return (V_ra, V_dec)
 
-def eta_orb(srce,times, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec):
+def eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec):
     dps = dp - ds
     Orb_ra=np.zeros(times.shape[0])*u.km/u.s
     Orb_dec=np.zeros(times.shape[0])*u.km/u.s
     for i in range(times.shape[0]):
-        Orb_ra[i],Orb_dec[i]= orb_proj_vel(times[i], a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
+        Orb_ra[i],Orb_dec[i]= orb_proj_vel(times[i],Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
         inc)
     V_P_ra=pm_ra*dp+Orb_ra
     V_P_dec=pm_dec*dp+Orb_dec
@@ -62,7 +62,7 @@ def eta_orb(srce,times, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,d
     eta = .5 * (ds * dp / dps) * (const.c / ((Veff)**2)) / f0**2
     return(eta.to(u.ms/u.mHz**2))
 
-def eta_sol(times,Om_scr,dp,ds,f0,pm_ra,pm_dec):
+def eta_sol(times,Ecc,Om_scr,dp,ds,f0,pm_ra,pm_dec):
     dps = dp - ds
     V_P_ra=pm_ra*dp
     V_P_dec=pm_dec*dp
@@ -79,14 +79,14 @@ def T0_find(T0,TA,nu0,Pb,Ecc):
     nu=M.value+(2*Ecc-(Ecc/2)**2)*np.sin(M)+(5/4)*(Ecc**2)*np.sin(2*M)+(13/12)*(Ecc**3)*np.sin(3*M)
     return(nu-nu0.to_value(u.rad))
 
-def solver(X,data,sigma,times,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1):
+def solver(X,data,sigma,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1):
     Om_orb,Om_scr,inc,ds = X
     Om_orb*=u.deg
     Om_scr*=u.deg
     inc*=u.deg
     ds*=u.kpc
     a=np.abs(A1/np.sin(inc))
-    eta_model=eta_orb(times, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec)
+    eta_model=eta_orb(times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec)
     val=np.sum(((eta_model-data)/sigma)**2)
     print(X,' : ', val)
     return(val)
@@ -98,7 +98,7 @@ def lnprior(theta,lwrs,uprs):
         return(-np.inf)
     return(0.0)
    
-def lnprob(theta,data,sigma,srce,times,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs):
+def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs):
     Om_orb,Om_scr,inc,ds = theta
     Om_orb*=u.deg
     Om_scr*=u.deg
@@ -108,7 +108,7 @@ def lnprob(theta,data,sigma,srce,times,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,
     if not np.isfinite(lp):
         return -np.inf
     inv_sigma2 = 1.0/sigma**2
-    model=eta_orb(srce,times, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec)
+    model=eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec)
     
     lp2 = -0.5*(np.sum((data-model).value**2*inv_sigma2.value - np.log(inv_sigma2.value)))
     return(lp+lp2)
