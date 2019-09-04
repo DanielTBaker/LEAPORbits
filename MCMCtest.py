@@ -8,6 +8,7 @@ import astropy.constants as const
 from astropy.coordinates import SkyCoord
 import emcee
 import corner
+import matplotlib.pyplot as plt
 print('Import Complete')
 
 print('Load and Query')
