@@ -74,7 +74,7 @@ ndim, nwalkers = 4, 40
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
-sampler.run_mcmc(pos, 100)
+sampler.run_mcmc(pos, 10000)
 
 print('Walk Complete')
 
