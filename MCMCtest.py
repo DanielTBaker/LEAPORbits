@@ -54,7 +54,7 @@ inc = 20 * u.deg
 ds = dp / 2
 
 a = np.abs(A1 / np.sin(inc))
-eta_data = eta_orb(srce,times, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
+eta_data = orbfits.eta_orb(srce,times, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                    dp, ds, f0, pm_ra, pm_dec)
 
 sigma = eta_data / 10
