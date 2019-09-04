@@ -6,8 +6,9 @@ from astropy.time import Time
 import astropy.units as u
 import astropy.constants as const
 from astropy.coordinates import SkyCoord
-print('Import Complete')
 import emcee
+import corner
+print('Import Complete')
 
 print('Load and Query')
 names=list(f[6:-4] for f in os.listdir('./binarytimestamps'))
@@ -72,4 +73,23 @@ ndim, nwalkers = 4, 40
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
-sampler.run_mcmc(pos, 1000, progress=True)
+sampler.run_mcmc(pos, 1000)
+
+print('Walk Complete')
+
+
+
+para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
+reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
+
+fig = corner.corner(samples, labels=para_names,
+                      truths=reals)
+fig.savefig("Corner.png")
+
+for k in range(4):
+    plt.figure()
+    for i in range(nwalkers):
+        plt.plot(sampler.chain[i,:,k])
+    plt.title(para_names[k])
+    plt.axhline(reals[k],color='k',linewidth=2)
+    plt.savefig('%s_walk.png' %para_names)
