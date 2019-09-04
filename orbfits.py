@@ -104,6 +104,7 @@ def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm
     Om_scr*=u.deg
     inc*=u.deg
     ds*=u.kpc
+    a = np.abs(A1 / np.sin(inc))
     lp=lnprior(theta,lwrs,uprs)
     if not np.isfinite(lp):
         return -np.inf
