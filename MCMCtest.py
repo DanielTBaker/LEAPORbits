@@ -4,7 +4,7 @@ import os
 from psrqpy import QueryATNF
 from astropy.time import Time
 import astropy.units as u
-import astropy.constants as c
+import astropy.constants as const
 from multiprocessing import Pool
 from astropy.coordinates import SkyCoord
 
