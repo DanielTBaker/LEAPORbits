@@ -5,13 +5,11 @@ from psrqpy import QueryATNF
 from astropy.time import Time
 import astropy.units as u
 import astropy.constants as const
-from multiprocessing import Pool
 from astropy.coordinates import SkyCoord
 import emcee
+print('Import Complete')
 
-os.environ["OMP_NUM_THREADS"] = "1"
-
-
+print('Load and Query')
 names=list(f[6:-4] for f in os.listdir('./binarytimestamps'))
 names_cat=list(names)
 names_cat[0]='J1939+2134'
@@ -21,9 +19,11 @@ names_cat.remove(names_cat[6])
 query=QueryATNF(psrs=names_cat)
 psrs = query.get_pulsars()
 
+print('Select Source')
 Test_source = 'J1643-1224'
 srce=SkyCoord.from_name('PSR %s' %Test_source)
 
+print('Define Simulation Parameters')
 PSR = psrs[Test_source]
 times_str = np.load('./binarytimestamps/times_%s.npy' %
                     Test_source).astype(str)
@@ -54,6 +54,7 @@ Om_scr = 0 * u.deg
 inc = 20 * u.deg
 ds = dp / 2
 
+print('Simulate Data')
 a = np.abs(A1 / np.sin(inc))
 eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                    dp, ds, f0, pm_ra, pm_dec)
@@ -65,10 +66,10 @@ eta_noisy = eta_data + np.random.normal(0, 1, eta_data.shape[0])*sigma
 lwrs=np.array([0,0,0,0])
 uprs=np.array([360,360,360,dp.to_value(u.kpc)])
 
-pool=Pool()
 
+print('Start Walking')
 ndim, nwalkers = 4, 40
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
-sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),pool=pool)
+sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
 sampler.run_mcmc(pos, 1000, progress=True)
