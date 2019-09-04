@@ -103,9 +103,9 @@ eta_real = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri
                    dp, ds, f0, pm_ra, pm_dec)
 
 plt.figure()
-plt.plot_data(times.plot_data,eta_noisy,label='Data')
-plt.plot_data(times_curve.plot_data,eta_fit,label='Fit')
-plt.plot_data(times_curve.plot_data,eta_real,label='Real')
+plt.plot_date(times.plot_date,eta_noisy,label='Data')
+plt.plot_date(times_curve.plot_date,eta_fit,label='Fit')
+plt.plot_date(times_curve.plot_date,eta_real,label='Real')
 plt.yscale('log')
 plt.xlabel('Date')
 plt.ylabel(r'$\nu$ ($ms/mHz^{2}$)')
