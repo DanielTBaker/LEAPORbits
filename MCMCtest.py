@@ -7,6 +7,7 @@ import astropy.units as u
 import astropy.constants as const
 from multiprocessing import Pool
 from astropy.coordinates import SkyCoord
+import emcee
 
 os.environ["OMP_NUM_THREADS"] = "1"
 
