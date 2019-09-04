@@ -65,8 +65,8 @@ sigma = eta_data / 10
 
 eta_noisy = eta_data + np.random.normal(0, 1, eta_data.shape[0])*sigma
 
-lwrs=np.array([0,0,0,0])
-uprs=np.array([360,360,360,dp.to_value(u.kpc)])
+lwrs=np.array([0,-90,0,0])
+uprs=np.array([360,90,180,dp.to_value(u.kpc)])
 
 
 print('Start Walking')
