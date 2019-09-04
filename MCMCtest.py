@@ -81,6 +81,7 @@ print('Walk Complete')
 samples = sampler.chain[:, 10:, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
+para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
 reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
 
 fig = corner.corner(samples, labels=para_names,
@@ -93,7 +94,7 @@ for k in range(4):
         plt.plot(sampler.chain[i,:,k])
     plt.title(para_names[k])
     plt.axhline(reals[k],color='k',linewidth=2)
-    plt.savefig('%s_walk.png' %para_names[k])
+    plt.savefig('%s_walk.png' %para_names_file[k])
 
 times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
 
