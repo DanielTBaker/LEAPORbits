@@ -93,4 +93,4 @@ for k in range(4):
         plt.plot(sampler.chain[i,:,k])
     plt.title(para_names[k])
     plt.axhline(reals[k],color='k',linewidth=2)
-    plt.savefig('%s_walk.png' %para_names)
+    plt.savefig('%s_walk.png' %para_names[k])
