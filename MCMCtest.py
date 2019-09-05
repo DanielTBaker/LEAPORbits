@@ -53,7 +53,7 @@ f0 = 1 * u.GHz
 
 ##Unknowns
 Om_orb = 38.2 * u.deg
-Om_scr = 0 * u.deg
+Om_scr = 164 * u.deg
 inc = 20 * u.deg
 ds = dp / 2
 
@@ -66,20 +66,20 @@ sigma = eta_data / 10
 
 eta_noisy = eta_data + np.random.normal(0, 1, eta_data.shape[0])*sigma
 
-lwrs=np.array([0,-90,0,0])
-uprs=np.array([360,90,180,dp.to_value(u.kpc)])
+lwrs=np.array([0,-90,-90,0])
+uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 
 
 print('Start Walking')
-ndim, nwalkers = 4, 40
+ndim, nwalkers = 4, 20
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
-sampler.run_mcmc(pos, 1000)
+sampler.run_mcmc(pos, 2000)
 
 print('Walk Complete')
 
-samples = sampler.chain[:, 500:, :].reshape((-1, ndim))
+samples = sampler.chain[:, 1000:, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
@@ -114,3 +114,5 @@ plt.xlabel('Date')
 plt.ylabel(r'$\nu$ ($ms/mHz^{2}$)')
 plt.title('Fit Results')
 plt.savefig('FIT.png')
+
+np.save('samples.npy',sampler.chain)
