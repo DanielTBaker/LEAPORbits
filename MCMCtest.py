@@ -14,7 +14,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='Test Orbit Recovery')
 parser.add_argument('-ns',type=int,default=2000,help='Number of Samples')
-parser.add_argument('-nw',type=int,default=2000,help='Number of Walkers')
+parser.add_argument('-nw',type=int,default=40,help='Number of Walkers')
 
 
 args=parser.parse_args()
