@@ -40,8 +40,8 @@ def orb_proj_vel(times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
     dRdTA = np.sin(TA)*Ecc*(R**2)/(a*(1-Ecc**2))
     x = R * np.cos(TA)
     y = R * np.sin(TA)
-    V_x =(dRdTA*np.cos(TA) - y)*TAdot
-    V_y =(dRdTA*np.sin(TA) + x)*TAdot
+    V_x =(dRdTA*np.cos(TA) - y)*TAdot/u.rad
+    V_y =(dRdTA*np.sin(TA) + x)*TAdot/u.rad
     V_x2 = V_x * np.cos(Om_peri_cur) - V_y * np.sin(Om_peri_cur)
     V_y2 = V_x * np.sin(Om_peri_cur) + V_y * np.cos(Om_peri_cur)
     V_y3 = V_y2 * np.cos(inc)
