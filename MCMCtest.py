@@ -15,6 +15,10 @@ import argparse
 parser = argparse.ArgumentParser(description='Test Orbit Recovery')
 parser.add_argument('-ns',type=int,default=2000,help='Number of Samples')
 parser.add_argument('-nw',type=int,default=40,help='Number of Walkers')
+parser.add_argument('-oo',type=float,default=0,help='Omega Orbit')
+parser.add_argument('-os',type=float,default=0,help='Omega Screen')
+parser.add_argument('-i',type=float,default=45,help='Inclination')
+parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance')
 
 
 args=parser.parse_args()
@@ -60,10 +64,10 @@ pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
 f0 = 1 * u.GHz
 
 ##Unknowns
-Om_orb = 38.2 * u.deg
-Om_scr = -16 * u.deg
-inc = 20 * u.deg
-ds = dp / 2
+Om_orb = np.mod(args.oo,360) * u.deg
+Om_scr = (np.mod(args.os+90,180)-90) * u.deg
+inc = (np.mod(args.i+90,180)-90) * u.deg
+ds = dp *args.s
 
 print('Simulate Data')
 a = np.abs(A1 / np.sin(inc))
