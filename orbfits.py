@@ -63,18 +63,6 @@ def eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,
     eta = .5 * (ds * dp / dps) * (const.c / ((Veff)**2)) / f0**2
     return(eta.to(u.ms/u.mHz**2))
 
-def eta_sol(times,Ecc,Om_scr,dp,ds,f0,pm_ra,pm_dec):
-    dps = dp - ds
-    V_P_ra=pm_ra*dp
-    V_P_dec=pm_dec*dp
-    V_E_ra,V_E_dec=E_proj_vel(SkyCoord.from_name('PSR %s' %names_cat[srce_idx]),times)
-    V_E_par = V_E_ra*np.cos(Om_scr) + V_E_dec*np.sin(Om_scr)
-    V_P_par = V_P_ra*np.cos(Om_scr) + V_P_dec*np.sin(Om_scr)
-    Veff = V_E_par + (ds / dp) * V_P_par
-
-    eta = .5 * (ds * dp / dps) * (const.c / ((Veff)**2)) / f0**2
-    return(eta.to(u.ms/u.mHz**2))
-
 def T0_find(T0,TA,nu0,Pb,Ecc):
     M=2*np.pi*u.rad*(TA-Time(T0,format='mjd'))/Pb
     nu=M.value+(2*Ecc-(Ecc/2)**2)*np.sin(M)+(5/4)*(Ecc**2)*np.sin(2*M)+(13/12)*(Ecc**3)*np.sin(3*M)
