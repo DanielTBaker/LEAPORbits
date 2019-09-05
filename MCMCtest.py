@@ -66,7 +66,7 @@ f0 = 1 * u.GHz
 ##Unknowns
 Om_orb = np.mod(args.oo,360) * u.deg
 Om_scr = (np.mod(args.os+90,180)-90) * u.deg
-inc = (np.mod(args.i+90,180)-90) * u.deg
+inc = np.mod(args.i,90) * u.deg
 ds = dp *args.s
 
 print('Simulate Data')
@@ -78,7 +78,7 @@ sigma = eta_data / 10
 
 eta_noisy = eta_data + np.random.normal(0, 1, eta_data.shape[0])*sigma
 
-lwrs=np.array([0,-90,-90,0])
+lwrs=np.array([0,-90,0,0])
 uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 
 
