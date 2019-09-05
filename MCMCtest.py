@@ -87,7 +87,7 @@ sampler.run_mcmc(pos, args.ns)
 
 print('Walk Complete')
 
-samples = sampler.chain[:, min((1000,ns//2)):, :].reshape((-1, ndim))
+samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
