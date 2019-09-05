@@ -25,32 +25,33 @@ def E_proj_vel(srce,T):
     E_V_dec=unit_ddec.dot(earth_posvel[1]).to(u.km/u.s)
     return(E_V_ra,E_V_dec)
 
-def orb_proj_vel(time,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
+def orb_proj_vel(times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
                        inc):
-    Om_peri_cur = Om_peri + Om_peri_dot * (time - T0)
-    times = time + np.linspace(0, Pb / 1e5, 2)
-    M = ((times - T0) * (2 * np.pi * u.rad / Pb - Om_peri_dot)).to_value(u.rad)
+    Om_peri_cur = Om_peri + Om_peri_dot * (times - T0)
+    M = ((times - T0) * (2 * np.pi * u.rad / Pb)).to_value(u.rad)
+    Mdot=(2 * np.pi * u.rad / Pb)
     TA = M + (2 * Ecc -
               (Ecc**3) / 4) * np.sin(M) + (5 / 4) * (Ecc**2) * np.sin(
                   2 * M) + (13 / 12) * (Ecc**3) * np.sin(3 * M)
+    TAdot=(1+(2 * Ecc -
+              (Ecc**3) / 4) * np.cos(M) + 2*(5 / 4) * (Ecc**2) * np.cos(
+                  2 * M) + 3*(13 / 12) * (Ecc**3) * np.cos(3 * M))*Mdot
     R = a * (1 - Ecc**2) / (1 + Ecc * np.cos(TA))
+    dRdTA = np.sin(TA)*Ecc*(R**2)/(a*(1-Ecc**2))
     x = R * np.cos(TA)
     y = R * np.sin(TA)
-    V_x = (np.diff(x)[0] / np.diff(times)[0]).to(u.km / u.s)
-    V_y = (np.diff(y)[0] / np.diff(times)[0]).to(u.km / u.s)
+    Vx=(dRdTA*np.cos(TA) - y)*TAdot
+    Vy=(dRdTA*np.sin(TA) + x)*TAdot
     V_x2 = V_x * np.cos(Om_peri_cur) - V_y * np.sin(Om_peri_cur)
     V_y2 = V_x * np.sin(Om_peri_cur) + V_y * np.cos(Om_peri_cur)
     V_y3 = V_y2 * np.cos(inc)
     V_ra = V_x2*np.cos(Om_orb) - V_y3*np.sin(Om_orb)
     V_dec = V_x2*np.sin(Om_orb) + V_y3*np.cos(Om_orb)
-    return (V_ra, V_dec)
+    return (V_ra.to(u.km/u.s), V_dec.to(u.km/u.s))
 
 def eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec):
     dps = dp - ds
-    Orb_ra=np.zeros(times.shape[0])*u.km/u.s
-    Orb_dec=np.zeros(times.shape[0])*u.km/u.s
-    for i in range(times.shape[0]):
-        Orb_ra[i],Orb_dec[i]= orb_proj_vel(times[i],Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
+    Orb_ra,Orb_dec= orb_proj_vel(times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,
         inc)
     V_P_ra=pm_ra*dp+Orb_ra
     V_P_dec=pm_dec*dp+Orb_dec
