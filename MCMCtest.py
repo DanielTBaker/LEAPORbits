@@ -10,6 +10,14 @@ import emcee
 import corner
 import matplotlib.pyplot as plt
 from scipy.optimize import brentq
+import argparse
+
+parser = argparse.ArgumentParser(description='Test Orbit Recovery')
+parser.add_argument('-ns',type=int,default=2000,help='Number of Samples')
+parser.add_argument('-nw',type=int,default=2000,help='Number of Walkers')
+
+
+args=parser.parse_args()
 print('Import Complete')
 
 print('Load and Query')
@@ -53,7 +61,7 @@ f0 = 1 * u.GHz
 
 ##Unknowns
 Om_orb = 38.2 * u.deg
-Om_scr = 164 * u.deg
+Om_scr = -16 * u.deg
 inc = 20 * u.deg
 ds = dp / 2
 
@@ -71,15 +79,15 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 
 
 print('Start Walking')
-ndim, nwalkers = 4, 20
+ndim, nwalkers = 4, args.nw
 pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
-sampler.run_mcmc(pos, 2000)
+sampler.run_mcmc(pos, args.ns)
 
 print('Walk Complete')
 
-samples = sampler.chain[:, 1000:, :].reshape((-1, ndim))
+samples = sampler.chain[:, min((1000,ns//2)):, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
