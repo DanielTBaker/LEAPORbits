@@ -73,7 +73,7 @@ if not os.path.isfile('%s_params.npy' %Test_source):
     pm_ra = (PSR.PMRA * u.mas / u.year).to_value(u.rad / u.s) / u.s
     pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
     srce=SkyCoord.from_name('PSR %s' %Test_source)
-    np.savez('%s_params.npz' %Test_source,np.array([dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value,srce.ra.to_value(u.deg),srce.dec.to_value(u.deg)]))
+    np.save('%s_params.npy' %Test_source,np.array([dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value,srce.ra.to_value(u.deg),srce.dec.to_value(u.deg)]))
 else:
     dp, Om_peri, Om_peri_dot, A1, Ecc, Pb, T0,pm_ra,pm_dec,ra,dec = np.load('%s_params.npy' %Test_source)
     dp*=u.kpc
