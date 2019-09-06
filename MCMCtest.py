@@ -115,9 +115,9 @@ if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
     print('Maximum Likelihood',flush=True)
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-    pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
+    pos = (1+np.random.randn((16,nwalkers,ndim))*1e-2)*result.x[np.newaxis,np.newaxis,:]
 else:
-    pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
+    pos = np.random.uniform(0,1,(16,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
 
 def lnp(theta):
     return(0)
@@ -127,17 +127,17 @@ sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lnp,threads=args.nw)
 
 sampler.run_mcmc(pos, args.ns)
 
-samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 lwrs=samples.mean(0)-np.array([180,-90,-45,0])
 uprs=samples.mean(0)+np.array([360,180,90,0])
 lwrs[-2:]=np.array([0,0])
 uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
-pos=sampler.chain[:,-1,:]
+pos=sampler.chain[:,:,-1,:]
 print('Start Walk 2',flush=True)
 Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
 sampler.run_mcmc(pos, args.ns)
-samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
@@ -202,9 +202,9 @@ for param_num in range(args.np):
         nll = lambda *args: -orbfits.lnprob(*args)
         print('Maximum Likelihood',flush=True)
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-        pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
+        pos = (1+np.random.randn((16,nwalkers,ndim))*1e-2)*result.x[np.newaxis,np.newaxis,:]
     else:
-        pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
+        pos = np.random.uniform(0,1,(16,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
 
 
     print('Start Walking',flush=True)
@@ -212,17 +212,17 @@ for param_num in range(args.np):
     sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lnp,threads=args.nw)
     sampler.run_mcmc(pos, args.ns)
 
-    samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+    samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
     lwrs=samples.mean(0)-np.array([180,-90,-45,0])
     uprs=samples.mean(0)+np.array([360,180,90,0])
     lwrs[-2:]=np.array([0,0])
     uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
-    pos=sampler.chain[:,-1,:]
+    pos=sampler.chain[:,:,-1,:]
     print('Start Walk 2',flush=True)
     Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
     sampler.run_mcmc(pos, args.ns)
-    samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+    samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 
     para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
