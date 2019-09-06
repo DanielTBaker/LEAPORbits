@@ -152,7 +152,7 @@ fig.savefig("Corner.png")
 for k in range(4):
     plt.figure()
     for i in range(nwalkers):
-        plt.plot(sampler.chain[i,:,k])
+        plt.plot(sampler.chain[0,i,:,k])
     plt.title(para_names[k])
     plt.axhline(reals[k],color='k',linewidth=2)
     plt.savefig('%s_walk.png' %para_names_file[k])
@@ -237,7 +237,7 @@ for param_num in range(args.np):
     for k in range(4):
         plt.figure()
         for i in range(nwalkers):
-            plt.plot(sampler.chain[i,:,k])
+            plt.plot(sampler.chain[0,i,:,k])
         plt.title(para_names[k])
         plt.axhline(reals[k],color='k',linewidth=2)
         plt.savefig('%s_walk_%s.png' %(para_names_file[k],param_num+1))
