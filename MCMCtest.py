@@ -48,7 +48,7 @@ times_str = np.load('./binarytimestamps/times_%s.npy' %
 times = Time(times_str)
 
 ##Knowns
-if not os.path.isfile('%s_params.npy'):
+if not os.path.isfile('%s_params.npy' %Test_source):
     try:
         query=QueryATNF(psrs=names_cat)
         psrs = query.get_pulsars()
@@ -73,16 +73,18 @@ if not os.path.isfile('%s_params.npy'):
         T0 = Time(PSR.T0, format='mjd')
     pm_ra = (PSR.PMRA * u.mas / u.year).to_value(u.rad / u.s) / u.s
     pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
+    np.save('%s_params.npy' %Test_source,[dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value])
 else:
-    dp = PSR.DIST_DM1 * u.kpc
-    Om_peri = PSR.OM * u.deg
-    Om_peri_dot = PSR.OMDOT * u.deg / u.year
-    A1 = PSR.A1 * u.s * const.c
-    Ecc = PSR.ECC
-    Pb = PSR.PB * u.day
-    T0 = Time(PSR.T0, format='mjd')
-    pm_ra = (PSR.PMRA * u.mas / u.year).to_value(u.rad / u.s) / u.s
-    pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
+    dp, Om_peri, Om_peri_dot, A1, Ecc, Pb, T0,pm_ra,pm_dec = np.load('%s_params.npy' %Test_source)
+    dp*=u.kpc
+    Om_peri*=u.deg
+    Om_peri_dot*=u.deg/u.year
+    A1*=u.m
+    Pb*=u.day
+    pm_ra*=u.rad/u.s
+    pm_dec*=u.rad/u.s
+    T0=Time(T0,format='mjd')
+    
 f0 = 1 * u.GHz
 
 ##Unknowns
