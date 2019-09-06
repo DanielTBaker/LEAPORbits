@@ -20,6 +20,7 @@ parser.add_argument('-os',type=float,default=0,help='Omega Screen')
 parser.add_argument('-i',type=float,default=45,help='Inclination')
 parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance')
 parser.add_argument('-ml',action='store_true',default= False, help='Maximum Likelihood')
+parser.add_argument('-mm',type=str,default= 'L-BFGS-B', help='Maximum Likelihood Method')
 
 
 args=parser.parse_args()
@@ -88,7 +89,7 @@ ndim, nwalkers = 4, args.nw
 if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
     print(nll((lwrs+uprs)/2,eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
-    result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)])
+    result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
     print(result.x)
     pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
 else:
