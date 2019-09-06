@@ -100,10 +100,20 @@ print('Start Walking')
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
 sampler.run_mcmc(pos, args.ns)
-
 print('Walk Complete')
 
 samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+
+lwrs=samples.mean(0)-np.array([180,-90,-45,0])
+uprs=samples.mean(0)+np.array([360,180,90,0])
+lwrs[-1]=0
+uprs[-1]=dp.to_value(u.kpc)
+pos=sampler.chain[:,-1,:]
+print('Start Walk 2')
+sampler.run_mcmc(pos, args.ns)
+samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+print('Walk Complete')
+
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
