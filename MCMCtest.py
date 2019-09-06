@@ -119,10 +119,11 @@ if args.ml:
 else:
     pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 
-
+def lnp(theta):
+    return(0)
 print('Start Walking',flush=True)
 Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
-sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lambda x: 0.0,threads=args.nw)
+sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lnp,threads=args.nw)
 
 sampler.run_mcmc(pos, args.ns)
 
@@ -208,7 +209,7 @@ for param_num in range(args.np):
 
     print('Start Walking',flush=True)
     Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
-    sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lambda x: 0.0,threads=args.nw)
+    sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lnp,threads=args.nw)
     sampler.run_mcmc(pos, args.ns)
 
     samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
