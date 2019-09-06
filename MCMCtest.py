@@ -115,7 +115,7 @@ if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
     print('Maximum Likelihood',flush=True)
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-    pos = (1+np.random.randn((16,nwalkers,ndim))*1e-2)*result.x[np.newaxis,np.newaxis,:]
+    pos = np.random.normal(1,1e-2,(16,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
 else:
     pos = np.random.uniform(0,1,(16,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
 
@@ -202,7 +202,7 @@ for param_num in range(args.np):
         nll = lambda *args: -orbfits.lnprob(*args)
         print('Maximum Likelihood',flush=True)
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-        pos = (1+np.random.randn((16,nwalkers,ndim))*1e-2)*result.x[np.newaxis,np.newaxis,:]
+        pos = np.random.normal(1,1e-2,(16,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
     else:
         pos = np.random.uniform(0,1,(16,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
 
