@@ -156,7 +156,7 @@ for i in range(args.np):
     lwrs=np.array([0,-90,0,0])
     uprs=np.array([360,90,90,dp.to_value(u.kpc)])
     ##Unknowns
-    Om_orb,Om_scr,inc,ds=np.random.unform(lwrs,uprs)
+    Om_orb,Om_scr,inc,ds=np.random.uniform(lwrs,uprs)
 
     print('Simulate Data')
     a = np.abs(A1 / np.sin(inc))
