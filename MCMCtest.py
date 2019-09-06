@@ -24,7 +24,7 @@ parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance'
 parser.add_argument('-ml',action='store_true',default= False, help='Maximum Likelihood')
 parser.add_argument('-mm',type=str,default= 'L-BFGS-B', help='Maximum Likelihood Method')
 parser.add_argument('-np',type=int,default= 0, help='Number of Random Parameters')
-parser.add_argument('-nt'type=int,default=8,help='Number of Termperatures')
+parser.add_argument('-nt',type=int,default=8,help='Number of Termperatures')
 
 
 args=parser.parse_args()
