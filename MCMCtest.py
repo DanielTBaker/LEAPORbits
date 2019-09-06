@@ -89,7 +89,7 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 ndim, nwalkers = 4, args.nw
 if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
-    print('Maximum Likelyhood')
+    print('Maximum Likelihood')
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
     pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
 else:
@@ -151,7 +151,7 @@ plt.savefig('FIT.png')
 
 np.savez('samples.npz',samps=sampler.chain,reals=reals)
 
-for i in range(args.np):
+for param_num in range(args.np):
     lwrs=np.array([0,-90,0,0])
     uprs=np.array([360,90,90,dp.to_value(u.kpc)])
     ##Unknowns
@@ -161,9 +161,9 @@ for i in range(args.np):
     inc*=u.deg
     ds*=u.kpc
     if args.ml:
-        print('\033[7ARandom Parameters %s' %(i+1))
+        print('\033[7ARandom Parameters %s' %(param_num+1))
     else:
-        print('\033[6ARandom Parameters %s' %(i+1))
+        print('\033[6ARandom Parameters %s' %(param_num+1))
     print('Simulate Data')
     a = np.abs(A1 / np.sin(inc))
     eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
@@ -175,7 +175,7 @@ for i in range(args.np):
 
     if args.ml:
         nll = lambda *args: -orbfits.lnprob(*args)
-        print('Maximum Likelyhood')
+        print('Maximum Likelihood')
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
         pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
     else:
@@ -207,7 +207,7 @@ for i in range(args.np):
 
     fig = corner.corner(samples, labels=para_names,
                         truths=reals)
-    fig.savefig("Corner_%s.png" %(i+1))
+    fig.savefig("Corner_%s.png" %(param_num+1))
 
     for k in range(4):
         plt.figure()
@@ -215,7 +215,7 @@ for i in range(args.np):
             plt.plot(sampler.chain[i,:,k])
         plt.title(para_names[k])
         plt.axhline(reals[k],color='k',linewidth=2)
-        plt.savefig('%s_walk_%s.png' %(para_names_file[k],i+1))
+        plt.savefig('%s_walk_%s.png' %(para_names_file[k],param_num+1))
 
     times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
 
@@ -233,6 +233,6 @@ for i in range(args.np):
     plt.xlabel('Date')
     plt.ylabel(r'$\nu$ ($ms/mHz^{2}$)')
     plt.title('Fit Results')
-    plt.savefig('FIT.png')
+    plt.savefig('FIT_%s.png' %(param_num+1))
 
-    np.savez('samples_%s.npz' %(i+1),samps=sampler.chain,reals=reals)
+    np.savez('samples_%s.npz' %(param_num+1),samps=sampler.chain,reals=reals)
