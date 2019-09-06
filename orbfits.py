@@ -102,3 +102,24 @@ def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm
     
     lp2 = -0.5*(np.sum((data-model).value**2*inv_sigma2.value - np.log(inv_sigma2.value)))
     return(lp+lp2)
+
+class System:
+    def __init__(self,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs):
+        self.data = data
+        self.sigma = sigma
+        self.srce = srce
+        self.times = times
+        self.Ecc = Ecc
+        self.T0 = T0
+        self.Pb = Pb
+        self.Om_peri_dot = Om_peri_dot
+        self.Om_peri = Om_peri
+        self.dp = dp
+        self.f0 = f0
+        self.pm_ra = pm_ra
+        self.pm_dec = pm_dec
+        self.A1 = A1
+        self.lwrs = lwrs
+        self.uprs = uprs
+    def __call__(self,theta):
+        return(lnprob(theta,self.data,self.sigma,self.srce,self.times,self.Ecc,self.T0, self.Pb, self.Om_peri_dot, self.Om_peri,self.dp,self.f0,self.pm_ra,self.pm_dec, self.A1,self.lwrs,self.uprs))

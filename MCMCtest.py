@@ -121,7 +121,8 @@ else:
 
 
 print('Start Walking',flush=True)
-sampler = emcee.PTSampler(16,nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
+Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
+sampler = emcee.PTSampler(16,nwalkers, ndim, Sys,threads=args.nw)
 
 sampler.run_mcmc(pos, args.ns)
 
@@ -133,6 +134,7 @@ lwrs[-2:]=np.array([0,0])
 uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
 pos=sampler.chain[:,-1,:]
 print('Start Walk 2',flush=True)
+Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
 sampler.run_mcmc(pos, args.ns)
 samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
@@ -205,8 +207,8 @@ for param_num in range(args.np):
 
 
     print('Start Walking',flush=True)
-    sampler = emcee.PTSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
-
+    Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
+    sampler = emcee.PTSampler(16,nwalkers, ndim, Sys,threads=args.nw)
     sampler.run_mcmc(pos, args.ns)
 
     samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
@@ -217,6 +219,7 @@ for param_num in range(args.np):
     uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
     pos=sampler.chain[:,-1,:]
     print('Start Walk 2',flush=True)
+    Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
     sampler.run_mcmc(pos, args.ns)
     samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
