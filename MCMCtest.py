@@ -155,7 +155,7 @@ np.savez('samples.npz',samps=sampler.chain,reals=reals)
 for i in range(args.np):
     lwrs=np.array([0,-90,0,0])
     uprs=np.array([360,90,90,dp.to_value(u.kpc)])
-        ##Unknowns
+    ##Unknowns
     Om_orb,Om_scr,inc,ds=np.random.unform(lwrs,uprs)
 
     print('Simulate Data')
