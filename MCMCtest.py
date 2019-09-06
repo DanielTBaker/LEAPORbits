@@ -156,6 +156,10 @@ for i in range(args.np):
     uprs=np.array([360,90,90,dp.to_value(u.kpc)])
     ##Unknowns
     Om_orb,Om_scr,inc,ds=np.random.uniform(lwrs,uprs)
+    Om_orb*=u.deg
+    Om_scr*=u.deg
+    inc*=u.deg
+    ds*=u.kpc
     if args.ml:
         print('\033[7ARandom Parameters %s' %(i+1))
     else:
