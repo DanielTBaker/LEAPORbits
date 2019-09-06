@@ -40,7 +40,6 @@ names_cat.remove(names_cat[6])
 
 print('Select Source')
 Test_source = 'J1643-1224'
-srce=SkyCoord.from_name('PSR %s' %Test_source)
 
 print('Define Simulation Parameters')
 times_str = np.load('./binarytimestamps/times_%s.npy' %
@@ -73,9 +72,10 @@ if not os.path.isfile('%s_params.npy' %Test_source):
         T0 = Time(PSR.T0, format='mjd')
     pm_ra = (PSR.PMRA * u.mas / u.year).to_value(u.rad / u.s) / u.s
     pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
-    np.save('%s_params.npy' %Test_source,[dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value])
+    srce=SkyCoord.from_name('PSR %s' %Test_source)
+    np.savez('%s_params.npz' %Test_source,np.array([dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value,srce.ra.to(u.deg),srce.dec.to(u.deg)]))
 else:
-    dp, Om_peri, Om_peri_dot, A1, Ecc, Pb, T0,pm_ra,pm_dec = np.load('%s_params.npy' %Test_source)
+    dp, Om_peri, Om_peri_dot, A1, Ecc, Pb, T0,pm_ra,pm_dec,ra,dec = np.load('%s_params.npy' %Test_source)
     dp*=u.kpc
     Om_peri*=u.deg
     Om_peri_dot*=u.deg/u.year
@@ -84,6 +84,9 @@ else:
     pm_ra*=u.rad/u.s
     pm_dec*=u.rad/u.s
     T0=Time(T0,format='mjd')
+    ra*=u.deg
+    dec*=u.deg
+    srce=SkyCoord(ra=ra,dec=dec)
     
 f0 = 1 * u.GHz
 
