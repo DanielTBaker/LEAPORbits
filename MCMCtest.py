@@ -153,11 +153,10 @@ plt.savefig('FIT.png')
 np.savez('samples.npz',samps=sampler.chain,reals=reals)
 
 for i in range(args.np):
+    lwrs=np.array([0,-90,0,0])
+    uprs=np.array([360,90,90,dp.to_value(u.kpc)])
         ##Unknowns
-    Om_orb = np.mod(args.oo,360) * u.deg
-    Om_scr = (np.mod(args.os+90,180)-90) * u.deg
-    inc = np.mod(args.i,90) * u.deg
-    ds = dp *args.s
+    Om_orb,Om_scr,inc,ds=np.random.unform(lwrs,uprs)
 
     print('Simulate Data')
     a = np.abs(A1 / np.sin(inc))
@@ -167,9 +166,6 @@ for i in range(args.np):
     sigma = eta_data / 10
 
     eta_noisy = eta_data + np.random.normal(0, 1, eta_data.shape[0])*sigma
-
-    lwrs=np.array([0,-90,0,0])
-    uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 
     if args.ml:
         nll = lambda *args: -orbfits.lnprob(*args)
@@ -191,8 +187,8 @@ for i in range(args.np):
 
     lwrs=samples.mean(0)-np.array([180,-90,-45,0])
     uprs=samples.mean(0)+np.array([360,180,90,0])
-    lwrs[-1]=0
-    uprs[-1]=dp.to_value(u.kpc)
+    lwrs[-2:]=np.array([0,0])
+    uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
     pos=sampler.chain[:,-1,:]
     print('Start Walk 2')
     sampler.run_mcmc(pos, args.ns)
