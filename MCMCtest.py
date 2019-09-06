@@ -100,7 +100,6 @@ print('Start Walking')
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
 sampler.run_mcmc(pos, args.ns)
-print('Walk Complete')
 
 samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
@@ -112,7 +111,6 @@ pos=sampler.chain[:,-1,:]
 print('Start Walk 2')
 sampler.run_mcmc(pos, args.ns)
 samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
-print('Walk Complete')
 
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
@@ -161,9 +159,9 @@ for param_num in range(args.np):
     inc*=u.deg
     ds*=u.kpc
     if args.ml:
-        print('\033[7ARandom Parameters %s' %(param_num+1))
+        print('\033[5ARandom Parameters %s' %(param_num+1))
     else:
-        print('\033[6ARandom Parameters %s' %(param_num+1))
+        print('\033[4ARandom Parameters %s' %(param_num+1))
     print('Simulate Data')
     a = np.abs(A1 / np.sin(inc))
     eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
@@ -186,7 +184,6 @@ for param_num in range(args.np):
     sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
     sampler.run_mcmc(pos, args.ns)
-    print('Walk Complete')
 
     samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
@@ -198,7 +195,6 @@ for param_num in range(args.np):
     print('Start Walk 2')
     sampler.run_mcmc(pos, args.ns)
     samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
-    print('Walk Complete')
 
 
     para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
