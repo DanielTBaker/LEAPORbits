@@ -19,6 +19,7 @@ parser.add_argument('-oo',type=float,default=0,help='Omega Orbit')
 parser.add_argument('-os',type=float,default=0,help='Omega Screen')
 parser.add_argument('-i',type=float,default=45,help='Inclination')
 parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance')
+parser.add_argument('-ml',action='store_true',default= False, help='Maximum Likelihood')
 
 
 args=parser.parse_args()
@@ -82,9 +83,18 @@ lwrs=np.array([0,-90,0,0])
 uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 
 
-print('Start Walking')
+
 ndim, nwalkers = 4, args.nw
-pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
+if args.ml:
+    nll = lambda *args: -lnprob(*args)
+    result = op.minimize(nll, [180,0,45,dp.to_value(u.kpc)/2], args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
+    print(result.x)
+    pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
+else:
+    pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
+
+
+print('Start Walking')
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
 sampler.run_mcmc(pos, args.ns)
