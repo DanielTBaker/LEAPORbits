@@ -24,6 +24,7 @@ parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance'
 parser.add_argument('-ml',action='store_true',default= False, help='Maximum Likelihood')
 parser.add_argument('-mm',type=str,default= 'L-BFGS-B', help='Maximum Likelihood Method')
 parser.add_argument('-np',type=int,default= 0, help='Number of Random Parameters')
+parser.add_argument('-nt'type=int,default=8,help='Number of Termperatures')
 
 
 args=parser.parse_args()
@@ -110,20 +111,20 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 
 
 
-ndim, nwalkers = 4, args.nw
+ndim, nwalkers, ntemps = 4, args.nw, args.nt
 if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
     print('Maximum Likelihood',flush=True)
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-    pos = np.random.normal(1,1e-2,(16,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
+    pos = np.random.normal(1,1e-2,(ntemps,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
 else:
-    pos = np.random.uniform(0,1,(16,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
+    pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
 
 def lnp(theta):
     return(0)
 print('Start Walking',flush=True)
 Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
-sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lnp,threads=args.nw)
+sampler = emcee.PTSampler(ntemps,nwalkers, ndim, Sys, lnp,threads=args.nw)
 
 sampler.run_mcmc(pos, args.ns)
 
@@ -202,14 +203,14 @@ for param_num in range(args.np):
         nll = lambda *args: -orbfits.lnprob(*args)
         print('Maximum Likelihood',flush=True)
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-        pos = np.random.normal(1,1e-2,(16,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
+        pos = np.random.normal(1,1e-2,(ntemps,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
     else:
-        pos = np.random.uniform(0,1,(16,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
+        pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
 
 
     print('Start Walking',flush=True)
     Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
-    sampler = emcee.PTSampler(16,nwalkers, ndim, Sys, lnp,threads=args.nw)
+    sampler = emcee.PTSampler(ntemps,nwalkers, ndim, Sys, lnp,threads=args.nw)
     sampler.run_mcmc(pos, args.ns)
 
     samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
