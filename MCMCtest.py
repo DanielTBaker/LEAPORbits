@@ -9,7 +9,7 @@ from astropy.coordinates import SkyCoord
 import emcee
 import corner
 import matplotlib.pyplot as plt
-from scipy.optimize import brentq
+from scipy.optimize import brentq, minimize
 import argparse
 
 parser = argparse.ArgumentParser(description='Test Orbit Recovery')
@@ -87,7 +87,7 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 ndim, nwalkers = 4, args.nw
 if args.ml:
     nll = lambda *args: -lnprob(*args)
-    result = op.minimize(nll, [180,0,45,dp.to_value(u.kpc)/2], args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
+    result = minimize(nll, [180,0,45,dp.to_value(u.kpc)/2], args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
     print(result.x)
     pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
 else:
