@@ -11,6 +11,8 @@ import corner
 import matplotlib.pyplot as plt
 from scipy.optimize import brentq, minimize
 import argparse
+import pickle as pkl
+import sys
 
 parser = argparse.ArgumentParser(description='Test Orbit Recovery')
 parser.add_argument('-ns',type=int,default=2000,help='Number of Samples')
@@ -34,36 +36,53 @@ names_cat[0]='J1939+2134'
 names_cat[6]=names[6]+'+2551'
 names.remove(names[6])
 names_cat.remove(names_cat[6])
-query=QueryATNF(psrs=names_cat)
-psrs = query.get_pulsars()
+
 
 print('Select Source')
 Test_source = 'J1643-1224'
 srce=SkyCoord.from_name('PSR %s' %Test_source)
 
 print('Define Simulation Parameters')
-PSR = psrs[Test_source]
 times_str = np.load('./binarytimestamps/times_%s.npy' %
                     Test_source).astype(str)
 times = Time(times_str)
 
 ##Knowns
-dp = PSR.DIST_DM1 * u.kpc
-Om_peri = PSR.OM * u.deg
-Om_peri_dot = PSR.OMDOT * u.deg / u.year
-A1 = PSR.A1 * u.s * const.c
-Ecc = PSR.ECC
-Pb = PSR.PB * u.day
-if str(PSR.T0) == '--':
-    TASC = Time(PSR.TASC, format='mjd')
-    T0 = Time(brentq(orbfits.T0_find,
-                     TASC.mjd, (TASC + Pb).mjd,
-                     args=(TASC, -Om_peri, Pb, Ecc)),
-              format='mjd')
+if not os.path.isfile('%s_params.npy'):
+    try:
+        query=QueryATNF(psrs=names_cat)
+        psrs = query.get_pulsars()
+        cat=True
+    except:
+        print('psrqpy not available')
+        sys.exit()
+    PSR = psrs[Test_source]
+    dp = PSR.DIST_DM1 * u.kpc
+    Om_peri = PSR.OM * u.deg
+    Om_peri_dot = PSR.OMDOT * u.deg / u.year
+    A1 = PSR.A1 * u.s * const.c
+    Ecc = PSR.ECC
+    Pb = PSR.PB * u.day
+    if str(PSR.T0) == '--':
+        TASC = Time(PSR.TASC, format='mjd')
+        T0 = Time(brentq(orbfits.T0_find,
+                        TASC.mjd, (TASC + Pb).mjd,
+                        args=(TASC, -Om_peri, Pb, Ecc)),
+                format='mjd')
+    else:
+        T0 = Time(PSR.T0, format='mjd')
+    pm_ra = (PSR.PMRA * u.mas / u.year).to_value(u.rad / u.s) / u.s
+    pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
 else:
+    dp = PSR.DIST_DM1 * u.kpc
+    Om_peri = PSR.OM * u.deg
+    Om_peri_dot = PSR.OMDOT * u.deg / u.year
+    A1 = PSR.A1 * u.s * const.c
+    Ecc = PSR.ECC
+    Pb = PSR.PB * u.day
     T0 = Time(PSR.T0, format='mjd')
-pm_ra = (PSR.PMRA * u.mas / u.year).to_value(u.rad / u.s) / u.s
-pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
+    pm_ra = (PSR.PMRA * u.mas / u.year).to_value(u.rad / u.s) / u.s
+    pm_dec = (PSR.PMDec * u.mas / u.year).to_value(u.rad / u.s) / u.s
 f0 = 1 * u.GHz
 
 ##Unknowns
@@ -105,8 +124,8 @@ samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 lwrs=samples.mean(0)-np.array([180,-90,-45,0])
 uprs=samples.mean(0)+np.array([360,180,90,0])
-lwrs[-1]=0
-uprs[-1]=dp.to_value(u.kpc)
+lwrs[-2:]=np.array([0,0])
+uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
 pos=sampler.chain[:,-1,:]
 print('Start Walk 2')
 sampler.run_mcmc(pos, args.ns)
