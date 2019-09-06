@@ -27,9 +27,9 @@ parser.add_argument('-np',type=int,default= 0, help='Number of Random Parameters
 
 
 args=parser.parse_args()
-print('Import Complete')
+print('Import Complete',flush=True)
 
-print('Load and Query')
+print('Load and Query',flush=True)
 names=list(f[6:-4] for f in os.listdir('./binarytimestamps'))
 names_cat=list(names)
 names_cat[0]='J1939+2134'
@@ -38,10 +38,10 @@ names.remove(names[6])
 names_cat.remove(names_cat[6])
 
 
-print('Select Source')
+print('Select Source',flush=True)
 Test_source = 'J1643-1224'
 
-print('Define Simulation Parameters')
+print('Define Simulation Parameters',flush=True)
 times_str = np.load('./binarytimestamps/times_%s.npy' %
                     Test_source).astype(str)
 times = Time(times_str)
@@ -53,7 +53,7 @@ if not os.path.isfile('%s_params.npy' %Test_source):
         psrs = query.get_pulsars()
         cat=True
     except:
-        print('psrqpy not available')
+        print('psrqpy not available',flush=True)
         sys.exit()
     PSR = psrs[Test_source]
     dp = PSR.DIST_DM1 * u.kpc
@@ -95,8 +95,8 @@ Om_orb = np.mod(args.oo,360) * u.deg
 Om_scr = (np.mod(args.os+90,180)-90) * u.deg
 inc = np.mod(args.i,90) * u.deg
 ds = dp *args.s
-print('Fixed Parameters')
-print('Simulate Data')
+print('Fixed Parameters',flush=True)
+print('Simulate Data',flush=True)
 a = np.abs(A1 / np.sin(inc))
 eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                    dp, ds, f0, pm_ra, pm_dec)
@@ -113,14 +113,14 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 ndim, nwalkers = 4, args.nw
 if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
-    print('Maximum Likelihood')
+    print('Maximum Likelihood',flush=True)
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
     pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
 else:
     pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 
 
-print('Start Walking')
+print('Start Walking',flush=True)
 sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
 sampler.run_mcmc(pos, args.ns)
@@ -132,7 +132,7 @@ uprs=samples.mean(0)+np.array([360,180,90,0])
 lwrs[-2:]=np.array([0,0])
 uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
 pos=sampler.chain[:,-1,:]
-print('Start Walk 2')
+print('Start Walk 2',flush=True)
 sampler.run_mcmc(pos, args.ns)
 samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
@@ -183,10 +183,10 @@ for param_num in range(args.np):
     inc*=u.deg
     ds*=u.kpc
     if args.ml:
-        print('\033[5ARandom Parameters %s' %(param_num+1))
+        print('\033[5ARandom Parameters %s' %(param_num+1),flush=True)
     else:
-        print('\033[4ARandom Parameters %s' %(param_num+1))
-    print('Simulate Data')
+        print('\033[4ARandom Parameters %s' %(param_num+1),flush=True)
+    print('Simulate Data',flush=True)
     a = np.abs(A1 / np.sin(inc))
     eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                     dp, ds, f0, pm_ra, pm_dec)
@@ -197,14 +197,14 @@ for param_num in range(args.np):
 
     if args.ml:
         nll = lambda *args: -orbfits.lnprob(*args)
-        print('Maximum Likelihood')
+        print('Maximum Likelihood',flush=True)
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
         pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
     else:
         pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
 
 
-    print('Start Walking')
+    print('Start Walking',flush=True)
     sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
 
     sampler.run_mcmc(pos, args.ns)
@@ -216,7 +216,7 @@ for param_num in range(args.np):
     lwrs[-2:]=np.array([0,0])
     uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
     pos=sampler.chain[:,-1,:]
-    print('Start Walk 2')
+    print('Start Walk 2',flush=True)
     sampler.run_mcmc(pos, args.ns)
     samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
