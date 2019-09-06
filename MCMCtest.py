@@ -81,8 +81,8 @@ else:
     Om_peri_dot*=u.deg/u.year
     A1*=u.m
     Pb*=u.day
-    pm_ra*=u.rad/u.s
-    pm_dec*=u.rad/u.s
+    pm_ra/=u.s
+    pm_dec/=u.s
     T0=Time(T0,format='mjd')
     ra*=u.deg
     dec*=u.deg
