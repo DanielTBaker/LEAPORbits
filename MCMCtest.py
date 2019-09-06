@@ -71,7 +71,7 @@ Om_orb = np.mod(args.oo,360) * u.deg
 Om_scr = (np.mod(args.os+90,180)-90) * u.deg
 inc = np.mod(args.i,90) * u.deg
 ds = dp *args.s
-
+print('Fixed Parameters')
 print('Simulate Data')
 a = np.abs(A1 / np.sin(inc))
 eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
@@ -89,9 +89,8 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 ndim, nwalkers = 4, args.nw
 if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
-    print(nll((lwrs+uprs)/2,eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
+    print('Maximum Likelyhood')
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-    print(result.x)
     pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
 else:
     pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
@@ -157,7 +156,10 @@ for i in range(args.np):
     uprs=np.array([360,90,90,dp.to_value(u.kpc)])
     ##Unknowns
     Om_orb,Om_scr,inc,ds=np.random.uniform(lwrs,uprs)
-
+    if args.ml:
+        print('\033[7ARandom Parameters %s' %(i+1))
+    else:
+        print('\033[6ARandom Parameters %s' %(i+1))
     print('Simulate Data')
     a = np.abs(A1 / np.sin(inc))
     eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
@@ -169,9 +171,8 @@ for i in range(args.np):
 
     if args.ml:
         nll = lambda *args: -orbfits.lnprob(*args)
-        print(nll((lwrs+uprs)/2,eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
+        print('Maximum Likelyhood')
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-        print(result.x)
         pos = [result.x + 1e-2*np.random.randn(ndim)*result.x for i in range(nwalkers)]
     else:
         pos = [np.random.uniform(lwrs,uprs) for i in range(nwalkers)]
