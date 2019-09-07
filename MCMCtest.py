@@ -135,7 +135,7 @@ para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
 reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
 
 fig = corner.corner(samples, labels=para_names,
-                      truths=reals,quantiles=[16, 50, 84],show_titles=True)
+                      truths=reals,quantiles=[.16, .50, .84],show_titles=True)
 fig.savefig("Corner.png")
 
 for k in range(4):
@@ -209,7 +209,7 @@ for param_num in range(args.np):
     reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
 
     fig = corner.corner(samples, labels=para_names,
-                        truths=reals,quantiles=[16, 50, 84],show_titles=True)
+                        truths=reals,quantiles=[.16, .50, .84],show_titles=True)
     fig.savefig("Corner_%s.png" %(param_num+1))
 
     for k in range(4):
