@@ -131,7 +131,7 @@ if not pool.is_master():
     sys.close()
 sampler = emcee.PTSampler(ntemps,nwalkers, ndim, Sys, lnp,pool=pool)
 
-sampler.run_mcmc(pos, args.ns):
+sampler.run_mcmc(pos, args.ns)
 
 samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
