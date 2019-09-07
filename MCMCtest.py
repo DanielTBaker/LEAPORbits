@@ -231,8 +231,7 @@ for param_num in range(args.np):
                     dp, samples[:,3].mean()*u.kpc, f0, pm_ra, pm_dec)
     eta_real = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                     dp, ds, f0, pm_ra, pm_dec)
-
-   eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
+    eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
                    dp, result.x[3]*u.kpc, f0, pm_ra, pm_dec)
 
     plt.figure()
