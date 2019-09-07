@@ -130,16 +130,6 @@ sampler.run_mcmc(pos, args.ns)
 
 samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
-lwrs=samples.mean(0)-np.array([180,-90,-45,0])
-uprs=samples.mean(0)+np.array([360,180,90,0])
-lwrs[-2:]=np.array([0,0])
-uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
-pos=sampler.chain[:,-1,:]
-print('Start Walk 2',flush=True)
-sampler.run_mcmc(pos, args.ns)
-samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
-
-
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
 reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
@@ -213,16 +203,6 @@ for param_num in range(args.np):
     sampler.run_mcmc(pos, args.ns)
 
     samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
-
-    lwrs=samples.mean(0)-np.array([180,-90,-45,0])
-    uprs=samples.mean(0)+np.array([360,180,90,0])
-    lwrs[-2:]=np.array([0,0])
-    uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
-    pos=sampler.chain[:,-1,:]
-    print('Start Walk 2',flush=True)
-    sampler.run_mcmc(pos, args.ns)
-    samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
-
 
     para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
     para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
