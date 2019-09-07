@@ -153,10 +153,15 @@ eta_fit = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri,
 eta_real = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                    dp, ds, f0, pm_ra, pm_dec)
 
+
+eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
+                   dp, result.x[3]*u.kpc, f0, pm_ra, pm_dec)
+
 plt.figure()
 plt.plot_date(times.plot_date,eta_noisy,label='Data')
-plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit')
 plt.plot_date(times_curve.plot_date,eta_real,'-',label='Real')
+plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
+plt.plot_date(times_curve.plot_date,eta_ML,'-',label='Fit (ML)')
 plt.legend(loc=0)
 plt.yscale('log')
 plt.xlabel('Date')
@@ -227,10 +232,14 @@ for param_num in range(args.np):
     eta_real = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                     dp, ds, f0, pm_ra, pm_dec)
 
+   eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
+                   dp, result.x[3]*u.kpc, f0, pm_ra, pm_dec)
+
     plt.figure()
     plt.plot_date(times.plot_date,eta_noisy,label='Data')
-    plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit')
     plt.plot_date(times_curve.plot_date,eta_real,'-',label='Real')
+    plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
+    plt.plot_date(times_curve.plot_date,eta_ML,'-',label='Fit (ML)')
     plt.legend(loc=0)
     plt.yscale('log')
     plt.xlabel('Date')
