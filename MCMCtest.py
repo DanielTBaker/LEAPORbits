@@ -13,6 +13,7 @@ from scipy.optimize import brentq, minimize
 import argparse
 import pickle as pkl
 import sys
+from emcee.utils import MPIPool
 
 parser = argparse.ArgumentParser(description='Test Orbit Recovery')
 parser.add_argument('-ns',type=int,default=2000,help='Number of Samples')
@@ -122,15 +123,18 @@ else:
 
 def lnp(theta):
     return(0)
-print('Start Walking',flush=True)
 Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
-pool = emcee.utils.MPIPool()
+pool = MPIPool()
 if not pool.is_master:
     pool.wait()
     sys.close()
 sampler = emcee.PTSampler(ntemps,nwalkers, ndim, Sys, lnp,pool=pool)
 
-sampler.run_mcmc(pos, args.ns)
+print('Start Walking',flush=True)
+iters=0
+for result in sampler.sample(pos, args.ns):
+    iters+=1
+    print(iters)
 
 samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
