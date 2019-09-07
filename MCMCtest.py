@@ -124,6 +124,10 @@ def lnp(theta):
     return(0)
 print('Start Walking',flush=True)
 Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
+pool = emcee.utils.MPIPool()
+if not pool.is_master:
+    pool.wait()
+    sys.close()
 sampler = emcee.PTSampler(ntemps,nwalkers, ndim, Sys, lnp,threads=args.nw)
 
 sampler.run_mcmc(pos, args.ns)
@@ -261,3 +265,5 @@ for param_num in range(args.np):
     plt.savefig('FIT_%s.png' %(param_num+1))
 
     np.savez('samples_%s.npz' %(param_num+1),samps=sampler.chain,reals=reals)
+
+pool.close()
