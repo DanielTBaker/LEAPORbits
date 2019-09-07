@@ -17,7 +17,7 @@ from emcee.utils import MPIPool
 
 parser = argparse.ArgumentParser(description='Test Orbit Recovery')
 parser.add_argument('-ns',type=int,default=2000,help='Number of Samples')
-parser.add_argument('-nw',type=int,default=40,help='Number of Walkers')
+parser.add_argument('-nw',type=int,default=80,help='Number of Walkers')
 parser.add_argument('-oo',type=float,default=0,help='Omega Orbit')
 parser.add_argument('-os',type=float,default=0,help='Omega Screen')
 parser.add_argument('-i',type=float,default=45,help='Inclination')
@@ -25,7 +25,7 @@ parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance'
 parser.add_argument('-ml',action='store_true',default= False, help='Maximum Likelihood')
 parser.add_argument('-mm',type=str,default= 'L-BFGS-B', help='Maximum Likelihood Method')
 parser.add_argument('-np',type=int,default= 0, help='Number of Random Parameters')
-parser.add_argument('-nt',type=int,default=8,help='Number of Termperatures')
+parser.add_argument('-nt',type=int,default=80,help='Number of Threads')
 
 
 args=parser.parse_args()
@@ -112,7 +112,7 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 
 
 
-ndim, nwalkers, ntemps = 4, args.nw, args.nt
+ndim, nwalkers, nthreads = 4, args.nw, args.nt
 if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
     print('Maximum Likelihood',flush=True)
@@ -124,7 +124,7 @@ else:
 def lnp(theta):
     return(0)
 print('Start Walking',flush=True)
-sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
+sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=nthreads)
 
 sampler.run_mcmc(pos, args.ns)
 
@@ -208,7 +208,7 @@ for param_num in range(args.np):
 
 
     print('Start Walking',flush=True)
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=20)
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),threads=nthreads)
 
     sampler.run_mcmc(pos, args.ns)
 
