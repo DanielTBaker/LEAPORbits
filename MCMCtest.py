@@ -117,9 +117,9 @@ if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
     print('Maximum Likelihood',flush=True)
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-    pos = np.random.normal(1,1e-2,(ntemps,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
+    pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
 else:
-    pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
+    pos = np.random.uniform(0,1,(nwalkers,ndim))*(uprs-lwrs)[np.newaxis,:]+lwrs[np.newaxis,:]
 
 def lnp(theta):
     return(0)
@@ -128,17 +128,16 @@ sampler = emcee.EnsembleSampler(nwalkers, ndim, orbfits.lnprob, args=(eta_noisy,
 
 sampler.run_mcmc(pos, args.ns)
 
-samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 lwrs=samples.mean(0)-np.array([180,-90,-45,0])
 uprs=samples.mean(0)+np.array([360,180,90,0])
 lwrs[-2:]=np.array([0,0])
 uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
-pos=sampler.chain[:,:,-1,:]
+pos=sampler.chain[:,-1,:]
 print('Start Walk 2',flush=True)
-Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
 sampler.run_mcmc(pos, args.ns)
-samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
@@ -152,7 +151,7 @@ fig.savefig("Corner.png")
 for k in range(4):
     plt.figure()
     for i in range(nwalkers):
-        plt.plot(sampler.chain[0,i,:,k])
+        plt.plot(sampler.chain[i,:,k])
     plt.title(para_names[k])
     plt.axhline(reals[k],color='k',linewidth=2)
     plt.savefig('%s_walk.png' %para_names_file[k])
@@ -203,9 +202,9 @@ for param_num in range(args.np):
         nll = lambda *args: -orbfits.lnprob(*args)
         print('Maximum Likelihood',flush=True)
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
-        pos = np.random.normal(1,1e-2,(ntemps,nwalkers,ndim))*result.x[np.newaxis,np.newaxis,:]
+        pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
     else:
-        pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
+        pos = np.random.uniform(0,1,(nwalkers,ndim))*(uprs-lwrs)[np.newaxis,:]+lwrs[np.newaxis,:]
 
 
     print('Start Walking',flush=True)
@@ -213,17 +212,16 @@ for param_num in range(args.np):
 
     sampler.run_mcmc(pos, args.ns)
 
-    samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+    samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
     lwrs=samples.mean(0)-np.array([180,-90,-45,0])
     uprs=samples.mean(0)+np.array([360,180,90,0])
     lwrs[-2:]=np.array([0,0])
     uprs[-2:]=np.array([90,dp.to_value(u.kpc)])
-    pos=sampler.chain[:,:,-1,:]
+    pos=sampler.chain[:,-1,:]
     print('Start Walk 2',flush=True)
-    Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
     sampler.run_mcmc(pos, args.ns)
-    samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+    samples = sampler.chain[:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 
     para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
@@ -237,7 +235,7 @@ for param_num in range(args.np):
     for k in range(4):
         plt.figure()
         for i in range(nwalkers):
-            plt.plot(sampler.chain[0,i,:,k])
+            plt.plot(sampler.chain[i,:,k])
         plt.title(para_names[k])
         plt.axhline(reals[k],color='k',linewidth=2)
         plt.savefig('%s_walk_%s.png' %(para_names_file[k],param_num+1))
