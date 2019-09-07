@@ -123,18 +123,15 @@ else:
 
 def lnp(theta):
     return(0)
+print('Start Walking',flush=True)
 Sys=orbfits.System(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs)
 pool = MPIPool()
-if not pool.is_master:
+if not pool.is_master():
     pool.wait()
     sys.close()
 sampler = emcee.PTSampler(ntemps,nwalkers, ndim, Sys, lnp,pool=pool)
 
-print('Start Walking',flush=True)
-iters=0
-for result in sampler.sample(pos, args.ns):
-    iters+=1
-    print(iters)
+sampler.run_mcmc(pos, args.ns):
 
 samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
