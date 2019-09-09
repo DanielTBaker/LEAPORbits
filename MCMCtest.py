@@ -14,6 +14,7 @@ import argparse
 import pickle as pkl
 import sys
 from emcee.utils import MPIPool
+import itertools
 
 parser = argparse.ArgumentParser(description='Test Orbit Recovery')
 parser.add_argument('-ns',type=int,default=2000,help='Number of Samples')
@@ -23,6 +24,7 @@ parser.add_argument('-os',type=float,default=0,help='Omega Screen')
 parser.add_argument('-i',type=float,default=45,help='Inclination')
 parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance')
 parser.add_argument('-ml',action='store_true',default= False, help='Maximum Likelihood')
+parser.add_argument('-es',action='store_true',default= False, help='Equally Spaced')
 parser.add_argument('-mm',type=str,default= 'L-BFGS-B', help='Maximum Likelihood Method')
 parser.add_argument('-np',type=int,default= 0, help='Number of Random Parameters')
 parser.add_argument('-nt',type=int,default=80,help='Number of Threads')
@@ -118,6 +120,12 @@ if args.ml:
     print('Maximum Likelihood',flush=True)
     result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
     pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
+elif args.es:
+    p1=np.array([60,120,180,240,300])
+    p2=np.array([-54,-18,18,54])
+    p3=np.array([33,66])
+    p4=np.array([.2,.4,.6,.8])*dp.to_value
+    pos=np.array([(p1[i],p2[j],p3[k],p4[l]) for i,j,k,l in itertools.product(range(len(p1)),range(len(p2)),range(len(p3)),range(len(p4)))])
 else:
     pos = np.random.uniform(0,1,(nwalkers,ndim))*(uprs-lwrs)[np.newaxis,:]+lwrs[np.newaxis,:]
 
@@ -153,15 +161,14 @@ eta_fit = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri,
 eta_real = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                    dp, ds, f0, pm_ra, pm_dec)
 
-
-eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
-                   dp, result.x[3]*u.kpc, f0, pm_ra, pm_dec)
-
 plt.figure()
 plt.plot_date(times.plot_date,eta_noisy,label='Data')
 plt.plot_date(times_curve.plot_date,eta_real,'-',label='Real')
 plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
-plt.plot_date(times_curve.plot_date,eta_ML,'-',label='Fit (ML)')
+if args.ml:
+    eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
+                dp, result.x[3]*u.kpc, f0, pm_ra, pm_dec)
+    plt.plot_date(times_curve.plot_date,eta_ML,'-',label='Fit (ML)')
 plt.legend(loc=0)
 plt.yscale('log')
 plt.xlabel('Date')
@@ -180,10 +187,7 @@ for param_num in range(args.np):
     Om_scr*=u.deg
     inc*=u.deg
     ds*=u.kpc
-    if args.ml:
-        print('\033[5ARandom Parameters %s' %(param_num+1),flush=True)
-    else:
-        print('\033[4ARandom Parameters %s' %(param_num+1),flush=True)
+    print('\033[4ARandom Parameters %s' %(param_num+1),flush=True)
     print('Simulate Data',flush=True)
     a = np.abs(A1 / np.sin(inc))
     eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
@@ -198,6 +202,12 @@ for param_num in range(args.np):
         print('Maximum Likelihood',flush=True)
         result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
         pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
+    elif args.es:
+        p1=np.array([60,120,180,240,300])
+        p2=np.array([-54,-18,18,54])
+        p3=np.array([33,66])
+        p4=np.array([.2,.4,.6,.8])*dp.to_value
+        pos=np.array([(p1[i],p2[j],p3[k],p4[l]) for i,j,k,l in itertools.product(range(len(p1)),range(len(p2)),range(len(p3)),range(len(p4)))])
     else:
         pos = np.random.uniform(0,1,(nwalkers,ndim))*(uprs-lwrs)[np.newaxis,:]+lwrs[np.newaxis,:]
 
@@ -231,14 +241,16 @@ for param_num in range(args.np):
                     dp, samples[:,3].mean()*u.kpc, f0, pm_ra, pm_dec)
     eta_real = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
                     dp, ds, f0, pm_ra, pm_dec)
-    eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
-                   dp, result.x[3]*u.kpc, f0, pm_ra, pm_dec)
+
 
     plt.figure()
     plt.plot_date(times.plot_date,eta_noisy,label='Data')
     plt.plot_date(times_curve.plot_date,eta_real,'-',label='Real')
     plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
-    plt.plot_date(times_curve.plot_date,eta_ML,'-',label='Fit (ML)')
+    if args.ml:
+        eta_ML = orbfits.eta_orb(srce,times_curve,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, result.x[0]*u.deg, result.x[1]*u.deg, result.x[2]*u.deg,
+                    dp, result.x[3]*u.kpc, f0, pm_ra, pm_dec)
+        plt.plot_date(times_curve.plot_date,eta_ML,'-',label='Fit (ML)')
     plt.legend(loc=0)
     plt.yscale('log')
     plt.xlabel('Date')
