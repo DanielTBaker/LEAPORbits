@@ -206,7 +206,7 @@ for param_num in range(args.np):
         p1=np.array([60,120,180,240,300])
         p2=np.array([-54,-18,18,54])
         p3=np.array([33,66])
-        p4=np.array([.2,.4,.6,.8])*dp.to_value
+        p4=np.array([.2,.4,.6,.8])*dp.to_value(u.kpc)
         pos=np.array([(p1[i],p2[j],p3[k],p4[l]) for i,j,k,l in itertools.product(range(len(p1)),range(len(p2)),range(len(p3)),range(len(p4)))])
     else:
         pos = np.random.uniform(0,1,(nwalkers,ndim))*(uprs-lwrs)[np.newaxis,:]+lwrs[np.newaxis,:]
