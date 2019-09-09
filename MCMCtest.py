@@ -122,6 +122,7 @@ if args.ml:
     initial[1]=(np.mod(np.arctan2(dp*pm_ra,dp*pm_dec).to_value(u.deg),180)-90)
     initial[-1]=.01*dp.value
     result = minimize(nll, initial, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
+    print('%s -> %s (%s)' %(initial,result.x,result.message))
     pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
 elif args.es:
     p1=np.array([60,120,180,240,300])
@@ -207,6 +208,7 @@ for param_num in range(args.np):
         initial[1]=(np.mod(np.arctan2(dp*pm_ra,dp*pm_dec).to_value(u.deg),180)-90)
         initial[-1]=.01*dp.value
         result = minimize(nll, initial, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
+        print('%s -> %s (%s)' %(initial,result.x,result.message))
         pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
     elif args.es:
         p1=np.array([60,120,180,240,300])
