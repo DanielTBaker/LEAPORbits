@@ -120,6 +120,7 @@ if args.ml:
     print('Maximum Likelihood',flush=True)
     initial=(lwrs+uprs)/2
     initial[1]=(np.mod(np.arctan2(dp*pm_ra,dp*pm_dec).to_value(u.deg),180)-90)
+    initial[-1]=.01*dp.value()
     result = minimize(nll, initial, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
     pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
 elif args.es:
@@ -189,7 +190,7 @@ for param_num in range(args.np):
     Om_scr*=u.deg
     inc*=u.deg
     ds*=u.kpc
-    print('\033[4ARandom Parameters %s' %(param_num+1),flush=True)
+    print('Random Parameters %s' %(param_num+1),flush=True)
     print('Simulate Data',flush=True)
     a = np.abs(A1 / np.sin(inc))
     eta_data = orbfits.eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr, inc,
@@ -204,6 +205,7 @@ for param_num in range(args.np):
         print('Maximum Likelihood',flush=True)
         initial=(lwrs+uprs)/2
         initial[1]=(np.mod(np.arctan2(dp*pm_ra,dp*pm_dec).to_value(u.deg),180)-90)
+        initial[-1]=.01*dp.value()
         result = minimize(nll, initial, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
         pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
     elif args.es:
