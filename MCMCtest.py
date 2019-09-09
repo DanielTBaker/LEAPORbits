@@ -263,5 +263,3 @@ for param_num in range(args.np):
     plt.savefig('FIT_%s.png' %(param_num+1))
 
     np.savez('samples_%s.npz' %(param_num+1),samps=sampler.chain,reals=reals)
-
-pool.close()
