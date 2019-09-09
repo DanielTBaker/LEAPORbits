@@ -118,7 +118,9 @@ ndim, nwalkers, nthreads = 4, args.nw, args.nt
 if args.ml:
     nll = lambda *args: -orbfits.lnprob(*args)
     print('Maximum Likelihood',flush=True)
-    result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
+    initial=(lwrs+uprs)/2
+    initial[1]=(np.mod(np.arctan2(dp*pm_ra,dp*pm_dec).to_value(u.deg)+90,180)-90) * u.deg
+    result = minimize(nll, initial, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
     pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
 elif args.es:
     p1=np.array([60,120,180,240,300])
@@ -200,7 +202,9 @@ for param_num in range(args.np):
     if args.ml:
         nll = lambda *args: -orbfits.lnprob(*args)
         print('Maximum Likelihood',flush=True)
-        result = minimize(nll, (lwrs+uprs)/2, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
+        initial=(lwrs+uprs)/2
+        initial[1]=(np.mod(np.arctan2(dp*pm_ra,dp*pm_dec).to_value(u.deg)+90,180)-90) * u.deg
+        result = minimize(nll, initial, args=(eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs),bounds=[(lwrs[i],uprs[i]) for i in range(ndim)],method=args.mm)
         pos = np.random.normal(1,1e-2,(nwalkers,ndim))*result.x[np.newaxis,:]
     elif args.es:
         p1=np.array([60,120,180,240,300])
