@@ -24,6 +24,7 @@ parser.add_argument('-i',type=float,default=45,help='Inclination')
 parser.add_argument('-s',type=float,default=.5,help='Fractional Screen Distance')
 parser.add_argument('-th',type=int,default=80,help='Number of Threads')
 parser.add_argument('-nT',type=int,default=8,help='Number of Temperatures')
+parser.add_argument('-nb',type=int,default=1000,help='Burn Steps')
 
 args=parser.parse_args()
 print('Import Complete',flush=True)
@@ -124,20 +125,21 @@ sampler=emcee.PTSampler(ntemps, nwalkers, ndim, PT_func, lnprior,threads=nthread
 
 print('Start Burn',flush=True)
 runs=0
-for p, lnprob, lnlike in sampler.sample(pos, iterations=min((1000,args.ns//2))):
+for p, lnprob, lnlike in sampler.sample(pos, iterations=args.nb):
     runs+=1
-    if np.mod(runs,args.ns//10)==0:
+    if np.mod(runs,args.nb//10)==0:
         print('%s/%s Complete' %(runs,args.ns),flush=True)
 print('Burn Complete',flush=True)
+runs=0
 for p, lnprob, lnlike in sampler.sample(p, lnprob0=lnprob,
                                            lnlike0=lnlike,
-                                           iterations=args.ns-min((1000,args.ns//2))):
+                                           iterations=args.ns):
     runs+=1
     if np.mod(runs,args.ns//10)==0:
         print('%s/%s Complete' %(runs,args.ns),flush=True)
 
 print('Start Plotting',flush=True)
-samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
+samples = sampler.chain[0,:, :, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
@@ -154,8 +156,7 @@ with PdfPages('PT_Results.pdf') as pdf:
         for k in range(ntemps):
             for l in range(nwalkers):
                 axes[k].plot(sampler.chain[k,l,:,i])
-            if k==0:
-                plt.axhline(reals[i],color='k',linewidth=2)
+        axes[0].axhline(reals[i],color='k',linewidth=2)
         pdf.savefig()
         plt.close()
     times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
