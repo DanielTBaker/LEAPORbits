@@ -131,7 +131,7 @@ for p, lnprob, lnlike in sampler.sample(pos, iterations=min((1000,args.ns//2))):
 print('Burn Complete',flush=True)
 for p, lnprob, lnlike in sampler.sample(p, lnprob0=lnprob,
                                            lnlike0=lnlike,
-                                           iterations=args.ns-200):
+                                           iterations=args.ns-min((1000,args.ns//2))):
     runs+=1
     if np.mod(runs,args.ns//10)==0:
         print('%s/%s Complete' %(runs,args.ns),flush=True)
