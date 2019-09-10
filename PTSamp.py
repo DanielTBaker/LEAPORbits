@@ -154,6 +154,8 @@ with PdfPages('PT_Results.pdf') as pdf:
         for k in range(ntemps):
             for l in range(nwalkers):
                 axes[k].plot(sampler.chain[k,l,:,i])
+            if k==0:
+                plt.axhline(reals[i],color='k',linewidth=2)
         pdf.savefig()
         plt.close()
     times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
