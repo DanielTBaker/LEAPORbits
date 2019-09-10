@@ -122,17 +122,17 @@ pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.ne
 
 sampler=emcee.PTSampler(ntemps, nwalkers, ndim, PT_func, lnprior,threads=nthreads)
 
-print('Start Burn')
+print('Start Burn',flush=True)
 for p, lnprob, lnlike in sampler.sample(pos, iterations=200):
     pass
-print('Start Walk')
+print('Start Walk',flush=True)
 for p, lnprob, lnlike in sampler.sample(p, lnprob0=lnprob,
                                            lnlike0=lnlike,
                                            iterations=args.ns-200):
     if np.mod(sampler.chain.shape[2],args.ns//10)==0:
-        print('%s/%s Complete' %(sampler.chain.shape[2],args.ns))
+        print('%s/%s Complete' %(sampler.chain.shape[2],args.ns),flush=True)
 
-print('Start Plotting')
+print('Start Plotting',flush=True)
 samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
 
 para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
