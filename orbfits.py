@@ -102,3 +102,31 @@ def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm
     
     lp2 = -0.5*(np.sum((data-model).value**2*inv_sigma2.value - np.log(inv_sigma2.value)))
     return(lp+lp2)
+
+    class parameter:
+        def  __init__(self,fixed,lnprior,value):
+            self.known=known
+            self.lnprior=lnprior
+            self.value=value
+    class PSR_fit:
+        self.Om_orb=0
+        self.Om_scr=0
+        self.inc=0
+        self.ds=0
+        self.data=0
+        self.sigma=0
+        self.srce=0
+        self.times=0
+        self.Ecc=0
+        self.T0=0
+        self.Pb=0
+        self.Om_peri_dot=0
+        self.Om_peri=0
+        self.dp=0
+        self.f0=0
+        self.pm_ra=0
+        self.pm_dec=0
+        self.A1=0
+        self.lwrs=0
+        self.uprs=0
+        
