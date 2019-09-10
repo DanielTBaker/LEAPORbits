@@ -141,7 +141,7 @@ para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
 reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
 
-with PdfPages('multipage_pdf.pdf') as pdf:
+with PdfPages('PT_Results.pdf') as pdf:
     fig = corner.corner(samples, labels=para_names,
                       truths=reals,quantiles=[.16, .50, .84],show_titles=True)
     pdf.savefig()
