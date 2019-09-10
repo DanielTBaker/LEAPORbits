@@ -129,6 +129,7 @@ for p, lnprob, lnlike in sampler.sample(pos, iterations=args.nb):
     runs+=1
     if np.mod(runs,args.nb//10)==0:
         print('%s/%s Complete' %(runs,args.ns),flush=True)
+sampler.reset()
 print('Start Walk',flush=True)
 runs=0
 for p, lnprob, lnlike in sampler.sample(p, lnprob0=lnprob,
