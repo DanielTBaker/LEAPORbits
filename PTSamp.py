@@ -117,6 +117,9 @@ def PT_func(theta):
 def lnprior(theta):
     return 0.0
 
+pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
+
+
 sampler=emcee.PTSampler(ntemps, nwalkers, ndim, PT_func, lnprior,threads=nthreads)
 
 for p, lnprob, lnlike in sampler.sample(pos, iterations=200):
