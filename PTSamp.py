@@ -126,11 +126,13 @@ print('Start Burn',flush=True)
 for p, lnprob, lnlike in sampler.sample(pos, iterations=200):
     pass
 print('Start Walk',flush=True)
+runs=200
 for p, lnprob, lnlike in sampler.sample(p, lnprob0=lnprob,
                                            lnlike0=lnlike,
                                            iterations=args.ns-200):
-    if np.mod(sampler.chain.shape[2],args.ns//10)==0:
-        print('%s/%s Complete' %(sampler.chain.shape[2],args.ns),flush=True)
+    runs+=1
+    if np.mod(runs,args.ns//10)==0:
+        print('%s/%s Complete' %(runs,args.ns),flush=True)
 
 print('Start Plotting',flush=True)
 samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
