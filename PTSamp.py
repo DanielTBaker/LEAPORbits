@@ -129,7 +129,8 @@ print('Start Walk')
 for p, lnprob, lnlike in sampler.sample(p, lnprob0=lnprob,
                                            lnlike0=lnlike,
                                            iterations=args.ns-200):
-    pass
+    if np.mod(sampler.chain.shape[2],args.ns//10)==0:
+        print('%s/%s Complete' %(sampler.chain.shape[2],args.ns))
 
 print('Start Plotting')
 samples = sampler.chain[0,:, min((1000,args.ns//2)):, :].reshape((-1, ndim))
