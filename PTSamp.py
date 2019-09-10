@@ -123,10 +123,12 @@ pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.ne
 sampler=emcee.PTSampler(ntemps, nwalkers, ndim, PT_func, lnprior,threads=nthreads)
 
 print('Start Burn',flush=True)
+runs=0
 for p, lnprob, lnlike in sampler.sample(pos, iterations=min((1000,args.ns//2))):
-    pass
-print('Start Walk',flush=True)
-runs=200
+    runs+=1
+    if np.mod(runs,args.ns//10)==0:
+        print('%s/%s Complete' %(runs,args.ns),flush=True)
+print('Burn Complete',flush=True)
 for p, lnprob, lnlike in sampler.sample(p, lnprob0=lnprob,
                                            lnlike0=lnlike,
                                            iterations=args.ns-200):
