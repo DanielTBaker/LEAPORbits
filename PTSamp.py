@@ -117,7 +117,7 @@ def PT_func(theta):
 def lnprior(theta):
     return 0.0
 
-sampler=PTSampler(ntemps, nwalkers, ndim, PT_func, lnprior,threads=nthreads)
+sampler=emcee.PTSampler(ntemps, nwalkers, ndim, PT_func, lnprior,threads=nthreads)
 
 for p, lnprob, lnlike in sampler.sample(pos, iterations=200):
     pass
