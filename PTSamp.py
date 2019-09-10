@@ -112,7 +112,7 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 ndim, nwalkers, nthreads, ntemps = 4, args.nw, args.th, args.nT
 
 def PT_func(theta):
-   return(orbfits.lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
+   return(orbfits.lnprob(theta,eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
 
 def lnprior(theta):
     return 0.0
