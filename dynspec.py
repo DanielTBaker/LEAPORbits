@@ -121,6 +121,16 @@ def Hough_Rob(SS,tau,fd,rbin,tau_lim):
     tau=tau.to_value(u.us)
     return(etas,HT)
 
+def half_gau(theta,eta):
+    eta_est,Amp,eta_low,eta_high=theta
+    res=Amp*np.exp(-np.power((eta-eta_est)/eta_low,2)/2)
+    res[eta>eta_est]=Amp*Amp*np.exp(-np.power((eta[eta>eta_est]-eta_est)/eta_high,2)/2)
+    return(res)
+
+def hg_fit(theta,eta,data):
+    model=half_gau(theta,eta)
+    return((model-data)**2)
+
 def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10)):
     nf=dynspec.shape[1]
     nt=dynspec.shape[0]
@@ -157,7 +167,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,sr
     shigh = np.max(SSb)*10**(-1.5)
 
     # Hough Transform
-    etas,HT,eta_std=Hough_Rob(SS.T,tau,ft,rbin,tau_lim)
+    etas,HT=Hough_Rob(SS.T,tau,ft,rbin,tau_lim)
     eta_est=etas[HT==HT.max()][0]
     eta_low=etas[HT>HT.max()*np.exp(-1./2)].min()
     eta_high=etas[HT>HT.max()*np.exp(-1./2)].max()
@@ -224,6 +234,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,sr
     HG=half_gau(res.x,etas[HT>0])
     ax4.loglog(etas[HT>0],HG,'k')
 
+    t0=Time(times.mean(),format='mjd')
     ax1.set_title('                                                 {0}, {1}'.format(srce, t0.isot),
                  fontsize=18)
     return(eta_est,eta_low,eta_high)
