@@ -31,14 +31,9 @@ def data_to_dspec(fname,profsig=5,sigma=10):
     template /= np.max(template)
     temp0=np.copy(template)
 
-    # Just for plotting purposes, double profile
-    profplot = np.concatenate((template, template), axis=0)
-    xplot = np.linspace(0,2,len(profplot))
-
     # Noise from bottom 50% of profile
     tnoise = np.std(template[template<np.median(template)])
     template[template < tnoise*profsig] = 0
-    profplot2 = np.concatenate((template, template), axis=0)
 
     # Multiply the profile by the template, sum over phase
     dynspec = (foldspec*template[np.newaxis,np.newaxis,:]).mean(-1)
@@ -61,11 +56,8 @@ def data_to_dspec(fname,profsig=5,sigma=10):
 
     # Get frequency and time info for plot axes
     freqs = arch.get_frequencies()
-    bw = freqs[-1] - freqs[0]
-    df = (freqs[1]-freqs[0])*u.MHz
     nt = dynspec.shape[0]
     T = arch.integration_length()
-    dt = (T / nt)*u.s
 
     # 2D power spectrum is the Secondary spectrum
     SS = np.fft.fftshift(SS)
@@ -101,7 +93,6 @@ def Hough(C,N,tau,fd,tau_lim,normed=False):
     for i in range(eta_low.shape[0]):
         HT[etas>eta_low[i]]+=Vals[i]
         HT[etas>eta_high[i]]-=Vals[i]
-    eta_est=etas[HT==HT.max()][0]
     return(etas,HT)
 
 
@@ -134,7 +125,6 @@ def hg_fit(theta,eta,data):
 def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10)):
     nf=dynspec.shape[1]
     nt=dynspec.shape[0]
-    bw = freqs[-1] - freqs[0]
     df = (freqs[1]-freqs[0])*u.MHz
     dt = (((times[-1]-times[0]) / nt)*u.day).to(u.s)
     T=(dt*nt).value
