@@ -29,7 +29,7 @@ dirname=args.dir
 
 print('Load Parameters',flush=True)
 DP_names=np.array([list(f for f in os.listdir(dirname) if f.endswith('npz'))])[0,:]
-DP=np.load(DP_names[0])
+DP=np.load('%s/%s' %(dirname,DP_names[0]))
 Source=DP['source']
 ##Knowns
 if not os.path.isfile('%s/%s_params.npy' %(dirname,Source)):
