@@ -138,7 +138,7 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
     plt.figure()
     plt.plot_date(times.plot_date,eta_noisy,'r',label='Data')
     for i in range(times.shape[0]):
-        times2=Times(np.array([times[i].mjd,times[i].mjd]),format='mjd')
+        times2=Time(np.array([times[i].mjd,times[i].mjd]),format='mjd')
         ebars=np.array([-1,1])*sigma[i]+eta_noisy[i]
         plt.plot_date(times2.plot_date,ebars,'r')
     plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
