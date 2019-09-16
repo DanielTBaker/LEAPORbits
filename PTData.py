@@ -136,7 +136,7 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
         plt.close()
     times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
     eta_fit = orbfits.eta_orb(srce,times_curve,Ecc, np.abs(A1 / np.sin(samples[:,2].mean()*u.deg)), T0, Pb, Om_peri_dot, Om_peri, samples[:,0].mean()*u.deg, samples[:,1].mean()*u.deg, samples[:,2].mean()*u.deg,
-                   dp, samples[:,3].mean()*u.kpc, f0, pm_ra, pm_dec)
+                   dp, samples[:,3].mean()*u.kpc, f0.mean(), pm_ra, pm_dec)
 
     plt.figure()
     plt.plot_date(times.plot_date,eta_noisy,'r',label='Data')
