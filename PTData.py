@@ -82,7 +82,7 @@ uprs=np.array([360,90,90,dp.to_value(u.kpc)])
 input=np.load('%s/eta_params.npy' %dirname)
 times=Time(input[0,:],format='mjd')
 eta_noisy=input[1,:]*u.ms/u.mHz**2
-sigma=input[2:,:].mean(0)*u.ms/u.mHz
+sigma=input[2:,:].mean(0)*u.ms/u.mHz**2
 
 ndim, nwalkers, nthreads, ntemps = 4, args.nw, args.th, args.nT
 
