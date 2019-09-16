@@ -120,7 +120,7 @@ para_names=np.array([r'$\Omega_{orb}$',r'$\Omega_{scr}$',r'$i$',r'$D_s$'])
 para_names_file=np.array(['OmOrb','OmScr','i','Ds'])
 reals=np.array([Om_orb.value,Om_scr.value,inc.value,ds.value])
 
-with PdfPages('PT_Results.pdf') as pdf:
+with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
     fig = corner.corner(samples, labels=para_names,quantiles=[.16, .50, .84],show_titles=True)
     pdf.savefig()
     plt.close()
