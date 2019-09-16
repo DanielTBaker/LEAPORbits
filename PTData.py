@@ -72,8 +72,11 @@ else:
     ra*=u.deg
     dec*=u.deg
     srce=SkyCoord(ra=ra,dec=dec)
-    
-f0 = 1 * u.GHz
+
+
+DP_names=np.array([list(f for f in os.listdir(dirname) if f.endswith('DP.npy'))])[0,:]
+DP=np.load('%s/%s' %(dirname,DP_names[0]))
+f0 = DP[:,3:5].mean(1)*u.MHz
 
 
 lwrs=np.array([0,-90,0,0])
