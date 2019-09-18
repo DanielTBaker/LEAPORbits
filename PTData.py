@@ -60,7 +60,7 @@ if not os.path.isfile('%s/%s_params.npy' %(dirname,Source)):
     srce=SkyCoord.from_name('PSR %s' %Source)
     np.save('%s/%s_params.npy' %(dirname,Source),np.array([dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value,srce.ra.to_value(u.deg),srce.dec.to_value(u.deg)]))
 else:
-    dp, Om_peri, Om_peri_dot, A1, Ecc, Pb, T0,pm_ra,pm_dec,ra,dec = np.load'%s/%s_params.npy' %(dirname,Source))
+    dp, Om_peri, Om_peri_dot, A1, Ecc, Pb, T0,pm_ra,pm_dec,ra,dec = np.load('%s/%s_params.npy' %(dirname,Source))
     dp*=u.kpc
     Om_peri*=u.deg
     Om_peri_dot*=u.deg/u.year
