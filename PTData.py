@@ -79,7 +79,7 @@ DP=np.load('%s/%s' %(dirname,DP_names[0]))
 f0 = DP[:,3:5].mean(1)*u.MHz
 
 
-lwrs=np.array([0,-90,0,0])
+lwrs=np.array([0,-90,90,0])
 uprs=np.array([360,90,180,dp.to_value(u.kpc)])
 
 input=np.load('%s/eta_params.npy' %dirname)
@@ -144,7 +144,7 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
     ebars=np.array([sigma,sigma])
     ebars[0,sigma==np.inf]=0
     ebars[1,sigma==np.inf]=10*ymax
-    plt.errorbar(times.plot_date,eta_noisy.value,ebars,eta_noisylabel='Data')
+    plt.errorbar(times.plot_date,eta_noisy.value,ebars,eta_noisy,label='Data')
     plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
     plt.legend(loc=0)
     plt.ylim((ymin,ymax))
