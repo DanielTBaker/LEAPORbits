@@ -141,10 +141,10 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
     plt.figure()
     ymin=.9*min((eta_fit.value.min(),(eta_noisy-sigma)[sigma<np.inf].min().value,eta_noisy.min().value))
     ymax=1.5*min((eta_fit.value.max(),(eta_noisy-sigma)[sigma<np.inf].max().value,eta_noisy.max().value))
-    ebars=np.array([sigma,sigma])
+    ebars=np.array([sigma.value,sigma.value])
     ebars[0,sigma==np.inf]=0
     ebars[1,sigma==np.inf]=10*ymax
-    plt.errorbar(times.plot_date,eta_noisy.value,ebars,eta_noisy,label='Data')
+    plt.errorbar(times.plot_date,eta_noisy.value,ebars,label='Data')
     plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
     plt.legend(loc=0)
     plt.ylim((ymin,ymax))
