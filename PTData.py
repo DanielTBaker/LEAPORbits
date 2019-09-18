@@ -140,7 +140,7 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
 
     plt.figure()
     ymin=.9*min((eta_fit.value.min(),(eta_noisy-sigma)[sigma<np.inf].min().value,eta_noisy.min().value))
-    ymax=1.5*min((eta_fit.value.max(),(eta_noisy-sigma)[sigma<np.inf].max().value,eta_noisy.max().value))
+    ymax=1.5*max((eta_fit.value.max(),(eta_noisy-sigma)[sigma<np.inf].max().value,eta_noisy.max().value))
     ebars=np.array([sigma.value,sigma.value])
     ebars[0,sigma==np.inf]=0
     ebars[1,sigma==np.inf]=10*ymax
