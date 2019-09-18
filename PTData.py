@@ -80,7 +80,7 @@ f0 = DP[:,3:5].mean(1)*u.MHz
 
 
 lwrs=np.array([0,-90,0,0])
-uprs=np.array([360,90,90,dp.to_value(u.kpc)])
+uprs=np.array([360,90,180,dp.to_value(u.kpc)])
 
 input=np.load('%s/eta_params.npy' %dirname)
 times=Time(input[0,:],format='mjd')

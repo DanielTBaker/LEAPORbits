@@ -98,7 +98,7 @@ def lnprior(theta,lwrs,uprs):
         return(-np.inf)
     if (theta-uprs).max()>0:
         return(-np.inf)
-    return(0.0)
+    return(np.log(np.sin(theta[-2]*u.deg).value/2))
    
 def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs):
     Om_orb,Om_scr,inc,ds = theta
