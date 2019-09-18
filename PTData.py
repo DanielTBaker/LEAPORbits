@@ -139,13 +139,15 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
                    dp, samples[:,3].mean()*u.kpc, f0.mean(), pm_ra, pm_dec)
 
     plt.figure()
-    plt.plot_date(times.plot_date,eta_noisy,'r',label='Data')
-    for i in range(times.shape[0]):
-        times2=Time(np.array([times[i].mjd,times[i].mjd]),format='mjd')
-        ebars=np.array([-1,1])*sigma[i]+eta_noisy[i]
-        plt.plot_date(times2.plot_date,ebars,'r')
+    ymin=.9*min((eta_fit.value.min(),(eta_noisy-sigma)[sigma<np.inf].min().value,eta_noisy.min().value))
+    ymax=1.5*min((eta_fit.value.max(),(eta_noisy-sigma)[sigma<np.inf].max().value,eta_noisy.max().value))
+    ebars=np.array([sigma,sigma])
+    ebars[0,sigma==np.inf]=0
+    ebars[1,sigma==np.inf]=10*ymax
+    plt.errorbar(times.plot_date,eta_noisy.value,ebars,eta_noisylabel='Data')
     plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
     plt.legend(loc=0)
+    plt.ylim((ymin,ymax))
     plt.yscale('log')
     plt.xlabel('Date')
     plt.ylabel(r'$\nu$ ($ms/mHz^{2}$)')

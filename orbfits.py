@@ -109,11 +109,12 @@ def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm
     a = np.abs(A1 / np.sin(inc))
     lp=lnprior(theta,lwrs,uprs)
     if not np.isfinite(lp):
-        return -np.inf
+        return(-np.inf)
     inv_sigma2 = 1.0/sigma**2
     model=eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec)
-    
-    lp2 = -0.5*(np.sum((data-model).value**2*inv_sigma2.value - np.log(inv_sigma2.value)))
+    if (data[sigma==np.inf]-model[sigma==np.inf]).min()<0:
+        return(-np.inf)
+    lp2 = -0.5*(np.sum((data[sigma<np.inf]-model[sigma<np.inf]).value**2*inv_sigma2[sigma<np.inf].value - np.log(inv_sigma2[sigma<np.inf].value)))
     return(lp+lp2)
 
 def bound_prior(x,lower,upper):
@@ -131,7 +132,7 @@ class PSR_fit:
     def __init__(self,name,data=None,sigma=None):
         self.name=name
 
-        if not os.path.isfile('%s_params.npy' %Test_source):
+        if not os.path.isfile('%s_params.npy' %self.name):
             try:
                 query=QueryATNF(psrs=[self.name])
                 psrs = query.get_pulsars()
@@ -206,7 +207,7 @@ class PSR_fit:
                 self.pm_dec.lnprior = lambda x: np.exp(.5*((x-self.pm_dec.val.value)/sig)**2)/np.sqrt(2*np.pi*err**2)
                 self.pm_dec.fixed = False
             self.srce=SkyCoord.from_name('PSR %s' %Test_source)
-            np.save('%s_params.npy' %Test_source,np.array([dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value,srce.ra.to_value(u.deg),srce.dec.to_value(u.deg)]))
+            np.save('%s_params.npy' %Test_source,np.array([dp.value, Om_peri.value, Om_peri_dot.value, A1.value, Ecc, Pb.value, T0.mjd,pm_ra.value,pm_dec.value,self.srce.ra.to_value(u.deg),self.srce.dec.to_value(u.deg)]))
 
         self.Om_orb=parameter(180,lambda x: bound_prior(x,0,360))
         self.Om_scr=parameter(0,lambda x: bound_prior(x,-90,90),fixed=False)
