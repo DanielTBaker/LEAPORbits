@@ -72,15 +72,14 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
     for i in range(times.shape[0]):
         print('Start %s / %s' %(i+1,times.shape[0]))
         data=np.load('%s/%s' %(dirname_save,fnames[i]))
-        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=256,xlim=30,ylim=1,tau_lim=.0001*u.ms,srce=srce,eta_true=eta_real[i]*u.ms/u.mHz**2,prof=data['prof'],template=data['template'])
+        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=256,xlim=30,ylim=1,tau_lim=.0001*u.ms,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
-    ymin=.9*min(((eta_est-eta_low).min().value,eta_real.min()))
-    ymax=1.5*max(((eta_est[eta_high<np.inf]+eta_high[eta_high<np.inf]).max().value,eta_real.max()))
+    ymin=.9*min(((eta_est-eta_low).min().value))
+    ymax=1.5*max(((eta_est[eta_high<np.inf]+eta_high[eta_high<np.inf]).max().value))
     ebars=np.array([eta_low.value,eta_high.value])
     ebars[ebars==np.inf]=10*ymax
     plt.errorbar(Time(times,format='mjd').plot_date,eta_est.value,ebars,label='Measured')
-    plt.plot_date(Time(times,format='mjd').plot_date,eta_real[:times.shape[0]],'r',label='Real')
     plt.ylim((ymin,ymax))
     plt.yscale('log')
     plt.legend()
