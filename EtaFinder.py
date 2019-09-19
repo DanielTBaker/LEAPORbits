@@ -81,7 +81,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             rbin=data['freq'].shape[0]
         else:
             rbin=args.rbin
-        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=data['freq'].shape[0],xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,srce=srce,prof=data['prof'],template=data['template'])
+        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=data['freq'].shape[0],xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
     ymin=.9*min(((eta_est-eta_low).min().value))
