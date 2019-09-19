@@ -8,7 +8,7 @@ import argparse
 from matplotlib.backends.backend_pdf import PdfPages
 from scintillation.sstools import slowft as slowft
 from scintillation.sstools import ss_tools as sstools
-import dynspec
+import datareader
 
 parser = argparse.ArgumentParser(description='Find Eta From Data')
 parser.add_argument('-dir', default='./', type=str,help='Data Directory')
@@ -21,10 +21,11 @@ ftype=args.ft
 
 fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith(ftype))])[0,:]
 
+dirname_save=dirname
 if not args.ft[-4:]=='npz':
     for i in range(fnames.shape[0]):
         fname='%s/%s' %(dirname,fnames[i])
-        times, freqs,N,dynspec,temp0,template,source=dynspec.data_to_dspec(fname,profsig=5,sigma=10)
+        times, freqs,N,dynspec,temp0,template,source=datareader.data_to_dspec(fname,profsig=5,sigma=10)
         fname=fnames[i]
         while not fname.endswith('.'):
             fname=fname[:-1]
@@ -32,14 +33,14 @@ if not args.ft[-4:]=='npz':
             np.savez('%s/%snpz' %(dirname,fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=source)
         except:
             np.savez('%snpz' %(fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=source)
-           
+            dirname_save='./'
 
 fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith('npz'))])[0,:]
 
 times=np.zeros(fnames.shape)
 for i in range(fnames.shape[0]):
-    times[i]=np.load('%s/%s' %(dirname,fnames[i]))['time'].mean()
-    srce=np.load('%s/%s' %(dirname,fnames[i]))['source']
+    times[i]=np.load('%s/%s' %(dirname_save,fnames[i]))['time'].mean()
+    srce=np.load('%s/%s' %(dirname_save,fnames[i]))['source']
 
 fnames=fnames[np.argsort(times)]
 times=np.sort(times)
@@ -47,10 +48,10 @@ times=np.sort(times)
 eta_est=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_low=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_high=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
-with PdfPages('%s/%s_etas.pdf' %(dirname,srce)) as pdf:
+with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
     for i in range(fnames.shape[0]):
-        data=np.load('%s/%s' %(dirname,fnames[i]))
-        eta_est[i],eta_low[i],eta_high[i]=dynspec.eta_from_data(data['I'],data['freq'],data['time'],rbin=256,xlim=30,ylim=1,tau_lim=.001*u.ms,srce=srce,eta_true=None,prof=data['prof'],template=data['template'])
+        data=np.load('%s/%s' %(dirname_save,fnames[i]))
+        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=256,xlim=30,ylim=1,tau_lim=.001*u.ms,srce=srce,eta_true=None,prof=data['prof'],template=data['template'])
     plt.figure(figsize=(8,8))
     plt.plot_date(Time(times,format='mjd').plot_date,eta_est,'r',label='Hough')
     plt.plot_date(Time(times,format='mjd').plot_date,eta_est+eta_high,'r')
@@ -67,7 +68,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname,srce)) as pdf:
     pdf.savefig()
     plt.close()
 output=np.array([times,eta_est,eta_low,eta_high])
-np.save('%s/etas.npy' %dirname,output)
+np.save('%s/etas.npy' %dirname_save,output)
 
 
 
