@@ -55,7 +55,12 @@ def data_to_dspec(fname,profsig=5,sigma=10):
     SS = np.fft.fft2(dspec)/np.sqrt(nf*nt)
 
     # Get frequency and time info for plot axes
-    freqs = arch.get_frequencies()
+    try:
+        freqs = arch.get_frequencies()
+    except:
+        midf = arch.get_centre_frequency()
+        bw = arch.get_bandwidth()
+        freqs = np.linspace(midf-bw/2., midf+bw/2., nf, endpoint=False)
     nt = dynspec.shape[0]
     T = arch.integration_length()
 
