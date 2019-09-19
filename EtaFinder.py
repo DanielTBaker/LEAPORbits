@@ -11,7 +11,7 @@ from scintillation.sstools import ss_tools as sstools
 import datareader
 
 parser = argparse.ArgumentParser(description='Find Eta From Data')
-parser.add_argument('-dir', default='./', type=str,help='Data Directory')
+parser.add_argument('-dir', default='', type=str,help='Data Directory')
 parser.add_argument('-ft',default='.npz',type=str,help='File Type')
 
 args=parser.parse_args()
