@@ -14,7 +14,10 @@ import datareader
 
 parser = argparse.ArgumentParser(description='Find Eta From Data')
 parser.add_argument('-dir', default='', type=str,help='Data Directory')
-parser.add_argument('-ft',default='.npz',type=str,help='File Type')
+parser.add_argument('-ft',default='.npz',type=str,help='File Type') 
+parser.add_argument('-flim', default=10,type=float,help='f_D range for plots')
+parser.add_argument('-tlim', default=.05,type=float,help='Lowest tau for Hough Transform (us)')
+parser.add_argument('-rbin', default=0,type=float,help='Number of bins in rebinned SS')
 
 args=parser.parse_args()
 
@@ -74,7 +77,11 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
     for i in range(times.shape[0]):
         print('Start %s / %s' %(i+1,times.shape[0]))
         data=np.load('%s/%s' %(dirname_save,fnames[i]))
-        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=data['freq'].shape[0],xlim=5,ylim=1,tau_lim=0.05*u.us,srce=srce,prof=data['prof'],template=data['template'])
+        if args.rbin==0:
+            rbin=data['freq'].shape[0]
+        else:
+            rbin=args.rbin
+        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=data['freq'].shape[0],xlim=args.flim,ylim=1,tau_lim=args.taulim*u.us,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
     ymin=.9*min(((eta_est-eta_low).min().value))
