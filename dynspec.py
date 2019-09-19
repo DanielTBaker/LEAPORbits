@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy.time import Time
-import scintillation.sstools.slowft as slowft
-import scintillation.sstools.ss_tools as sstools
+from scintillation.sstools import slowft as slowft
+from scintillation.sstools import ss_tools as sstools
 from scipy.ndimage.filters import gaussian_filter
 import scipy
 from scipy.optimize import minimize
