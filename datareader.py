@@ -125,6 +125,7 @@ def Hough_Prob(C,N,tau,fd,tau_lim,normed=False):
     x=x[y>tau_lim]
     Vals=Vals[y>tau_lim]
     y=y[y>tau_lim]
+    print(Vals.shape)
     
     dfd=(fd[1]-fd[0])/2
     dtau=(tau[1]-tau[0])/2
