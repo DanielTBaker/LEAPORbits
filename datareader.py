@@ -135,7 +135,7 @@ def Hough_Prob(C,N,tau,fd,tau_lim,normed=False):
     eta_low=(y-dtau)/(np.abs(x)+dfd)**2
     eta_high=(y+dtau)/(np.abs(x)-dfd)**2
     eta_high[np.abs(x)<=dfd]=(y[np.abs(x)<=dfd]+dtau)/(dfd/50)**2
-    etas=np.concatenate(((eta_low.value+eta_high.value)/2,np.array([eta_low.min().value,eta_high.max().value])))
+    etas=eta_low.value+eta_high.value)/2
     etas=np.sort(etas)*u.ms/u.mHz**2
     HT=np.zeros(etas.shape)
     sig_low=np.zeros(HT.shape)*u.ms/u.mHz**2
@@ -145,7 +145,6 @@ def Hough_Prob(C,N,tau,fd,tau_lim,normed=False):
         Vals/=(eta_high-eta_low).value
     for i in range(etas.shape[0]):
         uA = (eta_low<=etas[i])*(eta_high>=etas[i])
-        print(np.any(uA))
         xcA = xc[uA,:]
         ycA = yc[uA,:]
         below = yc[:,:,np.newaxis,np.newaxis] < ycA[np.newaxis,np.newaxis,:,:] - etas[i]*(xc[:,:,np.newaxis,np.newaxis]-xcA[np.newaxis,np.newaxis,:,:])**2
