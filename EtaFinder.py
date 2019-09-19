@@ -74,7 +74,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
     for i in range(times.shape[0]):
         print('Start %s / %s' %(i+1,times.shape[0]))
         data=np.load('%s/%s' %(dirname_save,fnames[i]))
-        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=256,xlim=5,ylim=1,tau_lim=0.05*u.us,srce=srce,prof=data['prof'],template=data['template'])
+        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=data['freq'].shape,xlim=5,ylim=1,tau_lim=0.05*u.us,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
     ymin=.9*min(((eta_est-eta_low).min().value))
