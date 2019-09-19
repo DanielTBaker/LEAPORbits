@@ -5,10 +5,10 @@ import astropy.units as u
 import os
 import re
 import argparse
-import dynspec
 from matplotlib.backends.backend_pdf import PdfPages
 from scintillation.sstools import slowft as slowft
 from scintillation.sstools import ss_tools as sstools
+import dynspec
 
 parser = argparse.ArgumentParser(description='Find Eta From Data')
 parser.add_argument('-dir', default='./', type=str,help='Data Directory')
