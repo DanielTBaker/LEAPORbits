@@ -25,7 +25,7 @@ dirname_save=dirname
 if not args.ft[-4:]=='npz':
     for i in range(fnames.shape[0]):
         fname='%s/%s' %(dirname,fnames[i])
-        times, freqs,N,dynspec,temp0,template,source=datareader.data_to_dspec(fname,profsig=5,sigma=10)
+        times, freqs,N,dynspec,temp0,template,srce=datareader.data_to_dspec(fname,profsig=5,sigma=10)
         fname=fnames[i]
         while not fname.endswith('.'):
             fname=fname[:-1]
@@ -35,7 +35,7 @@ if not args.ft[-4:]=='npz':
             np.savez('%snpz' %(fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=source)
             dirname_save='./'
 
-fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith('npz'))])[0,:]
+fnames=np.array([list(f for f in os.listdir(dirname_save) if f.endswith('npz'))])[0,:]
 
 times=np.zeros(fnames.shape)
 for i in range(fnames.shape[0]):
