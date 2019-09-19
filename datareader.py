@@ -125,7 +125,6 @@ def Hough_Prob(C,N,tau,fd,tau_lim,normed=False):
     x=x[y>tau_lim]
     Vals=Vals[y>tau_lim]
     y=y[y>tau_lim]
-    print(Vals.shape)
     
     dfd=(fd[1]-fd[0])/2
     dtau=(tau[1]-tau[0])/2
@@ -146,6 +145,7 @@ def Hough_Prob(C,N,tau,fd,tau_lim,normed=False):
         Vals/=(eta_high-eta_low).value
     for i in range(etas.shape[0]):
         uA = (eta_low<=etas[i])*(eta_high>=etas[i])
+        print(np.any(uA))
         xcA = xc[uA,:]
         ycA = yc[uA,:]
         below = yc[:,:,np.newaxis,np.newaxis] < ycA[np.newaxis,np.newaxis,:,:] - etas[i]*(xc[:,:,np.newaxis,np.newaxis]-xcA[np.newaxis,np.newaxis,:,:])**2
