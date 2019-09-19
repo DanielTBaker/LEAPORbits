@@ -9,7 +9,7 @@ from scipy.ndimage.filters import gaussian_filter
 import scipy
 from scipy.optimize import minimize
 from matplotlib.colors import LogNorm
-import scipy.sigal
+import scipy.signal
 
 def data_to_dspec(fname,profsig=5,sigma=10):
     arch = psrchive.Archive_load(fname)
