@@ -135,8 +135,8 @@ def Hough_Prob(C,N,tau,fd,tau_lim,normed=False):
     eta_low=(y-dtau)/(np.abs(x)+dfd)**2
     eta_high=(y+dtau)/(np.abs(x)-dfd)**2
     eta_high[np.abs(x)<=dfd]=(y[np.abs(x)<=dfd]+dtau)/(dfd/50)**2
-    etas=(eta_low.value+eta_high.value)/2
-    etas=np.sort(etas)*u.ms/u.mHz**2
+    etas=(eta_low+eta_high)/2
+    # etas=np.sort(etas)*u.ms/u.mHz**2
     HT=np.zeros(etas.shape)
     sig_low=np.zeros(HT.shape)*u.ms/u.mHz**2
     sig_high=np.zeros(HT.shape)*u.ms/u.mHz**2
