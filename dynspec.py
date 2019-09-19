@@ -72,11 +72,7 @@ def data_to_dspec(fname,profsig=5,sigma=10):
     N = SS[np.abs(tau)>9*tau.max()/10,:][:,np.abs(fd)>9*fd.max()/10].mean()
     
     times=np.linspace(t0.mjd,(t0+T*u.s).mjd,nt)
-    while not fname.endswith('.'):
-        fname=fname[:-1]
-    np.savez('%snpz' %fname,I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=source)
-    
-    return(times, freqs,N,dynspec,temp0,template)
+    return(times, freqs,N,dynspec,temp0,template,source)
 
 def Hough(C,N,tau,fd,tau_lim,normed=False):
     Vals=C[C>2*N]

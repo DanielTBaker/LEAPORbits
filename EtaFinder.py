@@ -24,7 +24,15 @@ fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith(ftype))])[0,:
 if not args.ft[-4:]=='npz':
     for i in range(fnames.shape[0]):
         fname='%s/%s' %(dirname,fnames[i])
-        dynspec.data_to_dspec(fname,profsig=5,sigma=10)
+        times, freqs,N,dynspec,temp0,template,source=dynspec.data_to_dspec(fname,profsig=5,sigma=10)
+        fname=fnames[i]
+        while not fname.endswith('.'):
+            fname=fname[:-1]
+        try:
+            np.savez('%s/%snpz' %(dirname,fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=source)
+        except:
+            np.savez('%snpz' %(fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=source)
+           
 
 fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith('npz'))])[0,:]
 
