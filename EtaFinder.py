@@ -42,8 +42,8 @@ if not args.ft[-4:]=='npz':
     for i in range(fnames.shape[0]):
         fname='%s/%s' %(dirname,fnames[i])
         t_last_cal=datareader.cal_find(fname,t_cals)
-        fname_cal='%s/%s' %(cal_dirname,fnames_cal[t_cals==t_last_cal][0])
-        times, freqs,N,dynspec,temp0,template,srce=datareader.data_to_dspec(fname,profsig=5,sigma=10)
+        fname_cal='%s/%s' %(cal_dirname,fnames_cals[t_cals==t_last_cal][0])
+        times, freqs,N,dynspec,temp0,template,srce=datareader.data_to_dspec(fname,fname_cal,profsig=5,sigma=10)
         fname=fnames[i]
         while not fname.endswith('.'):
             fname=fname[:-1]
