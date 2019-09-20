@@ -30,15 +30,14 @@ cal_dirname=args.dirC
 dirname_save=args.dirS
 ftype=args.ft
 
+
 fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith(ftype))])[0,:]
-fnames_cals=np.array([list(f for f in os.listdir(cal_dirname) if f.endswith('cf'))])[0,:]
-t_cals=np.zeros(fnames_cals.shape[0])
-for i in range(fnames_cals.shape[0]):
-    t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
 
-
-dirname_save=dirname
 if not args.ft[-4:]=='npz':
+    fnames_cals=np.array([list(f for f in os.listdir(cal_dirname) if f.endswith('cf'))])[0,:]
+    t_cals=np.zeros(fnames_cals.shape[0])
+    for i in range(fnames_cals.shape[0]):
+        t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
     for i in range(fnames.shape[0]):
         try:
             fname='%s/%s' %(dirname,fnames[i])
