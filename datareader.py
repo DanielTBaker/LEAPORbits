@@ -397,7 +397,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ax1.set_xlim(0,2)
 
     # Plot dynamic spectrum image
-    ax2.imshow(dspec_plot.T, aspect='auto', vmax=7, vmin=-2, origin='lower',
+    ax2.imshow(dspec_plot.T, aspect='auto', origin='lower',
                 extent=[0,T/60.,min(freqs), max(freqs)], cmap='Greys')
     ax2.set_xlabel('time (min)', fontsize=16)
     ax2.set_ylabel('freq (MHz)', fontsize=16)
