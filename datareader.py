@@ -145,6 +145,10 @@ def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,normed=False):
     etas=np.sort(np.unique(etas))
     etas=(etas[1:]+etas[:-1])/2
     etas*=u.ms/u.mHz**2
+    n_high=((eta_high[:,np.newaxis]<=etas[np.newaxis,:])*1).sum(0)
+    n_low=((eta_low[:,np.newaxis]<=etas[np.newaxis,:])*1).sum(0)
+    etas=etas[n_low>n_high]
+
     # etas=np.sort(etas)*u.ms/u.mHz**2
     HT=np.zeros(etas.shape)
     sig_low=np.zeros(HT.shape)*u.ms/u.mHz**2
