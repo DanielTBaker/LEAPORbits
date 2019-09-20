@@ -324,9 +324,9 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     dspec=np.copy(dynspec)
     dspec=np.reshape(dspec,(-1,nf//rbd,rbd)).mean(2)
     #if taper (Use Tukey window to taper edges of dynspec)
-    t_window = scipy.signal.windows.tukey(dynspec.shape[0], alpha=0.2, sym=True)
+    t_window = scipy.signal.windows.tukey(dspec.shape[0], alpha=0.2, sym=True)
     dspec *= t_window[:,np.newaxis]
-    f_window = scipy.signal.windows.tukey(dynspec.shape[1], alpha=0.2, sym=True)
+    f_window = scipy.signal.windows.tukey(dspec.shape[1], alpha=0.2, sym=True)
     dspec *= f_window[np.newaxis,:]
 
     #if pad (ADD PADDING, MASK REMOVAL)
@@ -343,7 +343,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ft = np.fft.fftfreq(SS.shape[0], dt)
     ft = np.fft.fftshift(ft.to(u.mHz).value)
 
-    tau = np.fft.fftfreq(SS.shape[1], df)
+    tau = np.fft.fftfreq(SS.shape[1], df*rbd)
     tau = np.fft.fftshift(tau.to(u.microsecond).value)
 
     slow = np.median(SSb)*10**(-0.3)
