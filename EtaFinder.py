@@ -49,7 +49,8 @@ if not args.ft[-4:]=='npz':
             while not fname.endswith('.'):
                 fname=fname[:-1]
             np.savez('%s/%snpz' %(dirname_save,fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=srce)
-        
+        except:
+            pass
 fnames=np.array([list(f for f in os.listdir(dirname_save) if f.endswith('npz'))])[0,:]
 
 times=np.zeros(fnames.shape)
