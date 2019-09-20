@@ -120,11 +120,11 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
 #     return(etas,HT)
 
 def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,normed=False):
-    Vals=C[C>10*N]
+    Vals=C[C>2*N]
     x=fd[np.newaxis,:]*np.ones(C.shape)
     y=tau[:,np.newaxis]*np.ones(C.shape)
-    x=x[C>10*N]
-    y=y[C>10*N]
+    x=x[C>2*N]
+    y=y[C>2*N]
 #     y=y[np.abs(x)>(fd[1]-fd[0])/2]
 #     Vals=Vals[np.abs(x)>(fd[1]-fd[0])/2]
 #     x=x[np.abs(x)>(fd[1]-fd[0])/2]
