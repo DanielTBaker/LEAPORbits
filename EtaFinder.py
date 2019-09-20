@@ -14,15 +14,18 @@ import datareader
 
 parser = argparse.ArgumentParser(description='Find Eta From Data')
 parser.add_argument('-dir', default='', type=str,help='Data Directory')
+parser.add_argument('-dirC', default='', type=str,help='Calibration Directory')
 parser.add_argument('-ft',default='.npz',type=str,help='File Type') 
 parser.add_argument('-flim', default=10,type=float,help='f_D range for plots')
 parser.add_argument('-tlim', default=.05,type=float,help='Lowest tau for Hough Transform (us)')
 parser.add_argument('-rbin', default=0,type=int,help='Number of bins in rebinned SS')
 parser.add_argument('-rbd', default=1,type=int,help='Rebinning factor in DS')
 
+
 args=parser.parse_args()
 
 dirname=args.dir
+cal_dirname=args.dirC
 ftype=args.ft
 
 fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith(ftype))])[0,:]
@@ -50,6 +53,11 @@ for i in range(fnames.shape[0]):
 
 fnames=fnames[np.argsort(times)]
 times=np.sort(times)
+
+fnames_cals=np.array([list(f for f in os.listdir(cal_dirname) if f.endswith('cf'))])[0,:]
+t_cals=np.zeros(fnames_cals.shape[0])
+for i in range(fnames_cals.shape[0])
+    t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
 
 eta_est=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_low=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
@@ -82,7 +90,9 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             rbin=data['freq'].shape[0]
         else:
             rbin=args.rbin
-        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
+        cal_file=fnames_cals[t_cals==t_cals[t_cals<data['time'][0]].max()]
+        cal=datareader.cal_find(cal_file)
+        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I']/cal[np.newaxis,:],data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
     ymin=.9*(eta_est-eta_low).min().value

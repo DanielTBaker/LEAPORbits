@@ -436,3 +436,12 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ax1.set_title('                                                 {0}, {1}'.format(srce, t0.isot),
                  fontsize=18)
     return(eta_est,eta_low,eta_high)
+
+def cal_time(fname):
+    arch=psrchive.Archive_load(fname)
+    return(float(arch.start_time().strtempo))
+
+def cal_find(fname):
+    arch=psrchive.Archive_load(fname)
+    data=arch.get_data()
+    return(data.mean((0,1,3)))
