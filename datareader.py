@@ -439,7 +439,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
 
 def cal_time(fname):
     arch=psrchive.Archive_load(fname)
-    return(float(arch.start_time().strtempo))
+    return(float(arch.start_time().strtempo()))
 
 def cal_find(fname):
     arch=psrchive.Archive_load(fname)
