@@ -15,6 +15,7 @@ import datareader
 parser = argparse.ArgumentParser(description='Find Eta From Data')
 parser.add_argument('-dir', default='', type=str,help='Data Directory')
 parser.add_argument('-dirC', default='', type=str,help='Calibration Directory')
+parser.add_argument('-dirS',default='', type=str,help='Save Directory')
 parser.add_argument('-ft',default='.npz',type=str,help='File Type') 
 parser.add_argument('-flim', default=10,type=float,help='f_D range for plots')
 parser.add_argument('-tlim', default=.05,type=float,help='Lowest tau for Hough Transform (us)')
@@ -26,6 +27,7 @@ args=parser.parse_args()
 
 dirname=args.dir
 cal_dirname=args.dirC
+dirname_save=args.dirS
 ftype=args.ft
 
 fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith(ftype))])[0,:]
@@ -38,12 +40,8 @@ if not args.ft[-4:]=='npz':
         fname=fnames[i]
         while not fname.endswith('.'):
             fname=fname[:-1]
-        try:
-            np.savez('%s/%snpz' %(dirname,fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=srce)
-        except:
-            np.savez('%snpz' %(fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=srce)
-            dirname_save='./'
-
+        np.savez('%s/%snpz' %(dirname_save,fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=srce)
+        
 fnames=np.array([list(f for f in os.listdir(dirname_save) if f.endswith('npz'))])[0,:]
 
 times=np.zeros(fnames.shape)
