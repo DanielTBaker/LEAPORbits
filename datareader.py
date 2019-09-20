@@ -11,14 +11,18 @@ from scipy.optimize import minimize
 from matplotlib.colors import LogNorm
 import scipy.signal
 
-def data_to_dspec(fname,profsig=5,sigma=10):
+def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
     arch = psrchive.Archive_load(fname)
     arch.dedisperse()
     data = arch.get_data()
     dc = data[:,(0,1)].mean(1)
 
+    arch_cal=psrchive.Archive_load(fname_cal)
+    cal=arch_cal.get_data()[:,(0,1)].mean(1)
+
     # Create folded spectrum, after offset and scaling
-    foldspec, mask = sstools.clean_foldspec(dc, plots=False)
+    # foldspec, mask = sstools.clean_foldspec(dc, plots=False)
+    foldspec = parkes_foldspec(dc,cal)
 
     # Get metadata
     source = arch.get_source()
@@ -38,6 +42,7 @@ def data_to_dspec(fname,profsig=5,sigma=10):
     # Multiply the profile by the template, sum over phase
     dynspec = (foldspec*template[np.newaxis,np.newaxis,:]).mean(-1)
     dynspec /= np.std(dynspec)
+    dynspec /= dynspec.mean(0)
     dynspec[dynspec > sigma] = np.mean(dynspec)
     
     
@@ -441,12 +446,31 @@ def cal_time(fname):
     arch=psrchive.Archive_load(fname)
     return(float(arch.start_time().strtempo()))
 
-def cal_find(fname):
+def cal_find(fname,t_cals):
     arch=psrchive.Archive_load(fname)
-    data=arch.get_data()
-    cal=data.mean((0,1,3))
-    cal/=cal[cal>0].mean()
-    norm=1/cal
-    norm[norm>1.5]=0
-    norm[norm<.5]=0
-    return(norm)
+    ts=float(arch.start_time().strtempo())
+    return(t_cals[t_cals<ts].max())
+
+def parkes_foldspec(f,cal):
+    offs = np.mean(f, axis=-1)
+    scl = np.std(f, axis=-1)
+    scl_inv = 1 / (scl)
+    scl_inv[np.isinf(scl_inv)] = 0
+
+    # Create boolean mask from scale factors
+    mask = np.zeros_like(scl_inv)
+    mask[scl_inv<0.2] = 0
+    mask[scl_inv>0.2] = 1
+
+    # Apply scales, sum time, freq, to find profile and off-pulse region
+    f_scl = (f - offs[...,np.newaxis]) * scl_inv[...,np.newaxis]
+    prof = f_scl.mean(0).mean(0)
+    off_gates = np.argwhere(prof < np.median(prof)).squeeze()
+
+    # Re-compute scales from off-pulse region
+    offs = np.mean(f[...,off_gates], axis=-1)
+    scl_inv=1/cal.mean((0,2))
+    scl_inv[np.isinf(scl_inv)] = 0
+
+    foldspec = (f - offs[...,np.newaxis]) * scl_inv[np.newaxis,:,np.newaxis]
+    return(foldspec)

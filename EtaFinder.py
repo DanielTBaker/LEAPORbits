@@ -31,11 +31,18 @@ dirname_save=args.dirS
 ftype=args.ft
 
 fnames=np.array([list(f for f in os.listdir(dirname) if f.endswith(ftype))])[0,:]
+fnames_cals=np.array([list(f for f in os.listdir(cal_dirname) if f.endswith('cf'))])[0,:]
+t_cals=np.zeros(fnames_cals.shape[0])
+for i in range(fnames_cals.shape[0]):
+    t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
+
 
 dirname_save=dirname
 if not args.ft[-4:]=='npz':
     for i in range(fnames.shape[0]):
         fname='%s/%s' %(dirname,fnames[i])
+        t_last_cal=cal_find(fname,t_cals)
+        fname_cal='%s/%s' %(cal_dirname,fnames_cal[t_cals==t_last_cal][0])
         times, freqs,N,dynspec,temp0,template,srce=datareader.data_to_dspec(fname,profsig=5,sigma=10)
         fname=fnames[i]
         while not fname.endswith('.'):
@@ -51,11 +58,6 @@ for i in range(fnames.shape[0]):
 
 fnames=fnames[np.argsort(times)]
 times=np.sort(times)
-
-fnames_cals=np.array([list(f for f in os.listdir(cal_dirname) if f.endswith('cf'))])[0,:]
-t_cals=np.zeros(fnames_cals.shape[0])
-for i in range(fnames_cals.shape[0]):
-    t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
 
 eta_est=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_low=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
@@ -88,9 +90,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             rbin=data['freq'].shape[0]
         else:
             rbin=args.rbin
-        cal_file=fnames_cals[t_cals==t_cals[t_cals<data['time'][0]].max()][0]
-        cal=datareader.cal_find('%s/%s' %(cal_dirname,cal_file))
-        dspec=data['I']*cal[np.newaxis,:]
+        dspec=data['I']
         eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
