@@ -43,6 +43,7 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
     dynspec = (foldspec*template[np.newaxis,np.newaxis,:]).mean(-1)
     dynspec /= np.std(dynspec)
     dynspec /= dynspec.mean(0)
+    dynspec = np.nan_to_num(dynspec)
     dynspec[dynspec > sigma] = np.mean(dynspec)
     
     
