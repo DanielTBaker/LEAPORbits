@@ -90,8 +90,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             rbin=args.rbin
         cal_file=fnames_cals[t_cals==t_cals[t_cals<data['time'][0]].max()][0]
         cal=datareader.cal_find('%s/%s' %(cal_dirname,cal_file))
-        dspec=data['I']/cal[np.newaxis,:]
-        dspec[:,cal==0]=0
+        dspec=data['I']*cal[np.newaxis,:]
         eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))

@@ -446,4 +446,7 @@ def cal_find(fname):
     data=arch.get_data()
     cal=data.mean((0,1,3))
     cal/=cal[cal>0].mean()
-    return(cal)
+    norm=1/cal
+    norm[norm>1.5]=0
+    norm[norm<.5]=0
+    return(norm)
