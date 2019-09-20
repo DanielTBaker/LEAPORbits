@@ -376,7 +376,6 @@ def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd
     else:
         eta_low=(sig_high[HT==HT.max()].max()-sig_low[HT==HT.max()].min())/2
         eta_high=(sig_high[HT==HT.max()].max()-sig_low[HT==HT.max()].min())/2
-    print(eta_high)
     nbin = dynspec.shape[0]//2
     dspec_plot = dynspec[:nbin*2].reshape(nbin, 2, dynspec.shape[-1]).mean(1)
     plt.figure(figsize=(10,15))
