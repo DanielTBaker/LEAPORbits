@@ -444,4 +444,6 @@ def cal_time(fname):
 def cal_find(fname):
     arch=psrchive.Archive_load(fname)
     data=arch.get_data()
-    return(data.mean((0,1,3)))
+    cal=data.mean((0,1,3))
+    cal/=cal[cal>0].mean()
+    return(cal)
