@@ -17,7 +17,7 @@ parser.add_argument('-dir', default='', type=str,help='Data Directory')
 parser.add_argument('-ft',default='.npz',type=str,help='File Type') 
 parser.add_argument('-flim', default=10,type=float,help='f_D range for plots')
 parser.add_argument('-tlim', default=.05,type=float,help='Lowest tau for Hough Transform (us)')
-parser.add_argument('-rbin', default=0,type=float,help='Number of bins in rebinned SS')
+parser.add_argument('-rbin', default=0,type=int,help='Number of bins in rebinned SS')
 
 args=parser.parse_args()
 
