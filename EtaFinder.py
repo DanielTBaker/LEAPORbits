@@ -39,6 +39,7 @@ if not args.ft[-4:]=='npz':
     for i in range(fnames_cals.shape[0]):
         t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
     for i in range(fnames.shape[0]):
+        print('Starting: %s' %fnames[i],flush=True)
         try:
             fname='%s/%s' %(dirname,fnames[i])
             t_last_cal=datareader.cal_find(fname,t_cals)
@@ -49,7 +50,7 @@ if not args.ft[-4:]=='npz':
                 fname=fname[:-1]
             np.savez('%s/%snpz' %(dirname_save,fname),I=dynspec,freq=freqs,time=times,N=N,prof=temp0,template=template,source=srce)
         except:
-            pass
+            print('Error!',flush=True)
 fnames=np.array([list(f for f in os.listdir(dirname_save) if f.endswith('npz'))])[0,:]
 
 times=np.zeros(fnames.shape)
