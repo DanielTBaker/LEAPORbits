@@ -88,7 +88,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             rbin=data['freq'].shape[0]
         else:
             rbin=args.rbin
-        cal_file=fnames_cals[t_cals==t_cals[t_cals<data['time'][0]].max()]
+        cal_file=fnames_cals[t_cals==t_cals[t_cals<data['time'][0]].max()][0]
         cal=datareader.cal_find('%s/%s' %(cal_dirname,cal_file))
         dspec=data['I']/cal[np.newaxis,:]
         dspec[:,cal==0]=0
