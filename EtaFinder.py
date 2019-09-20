@@ -84,8 +84,8 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
         eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I'],data['freq'],data['time'],rbin=data['freq'].shape[0],xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
-    ymin=.9*min(((eta_est-eta_low).min().value))
-    ymax=1.5*max(((eta_est[eta_high<np.inf]+eta_high[eta_high<np.inf]).max().value))
+    ymin=.9*(eta_est-eta_low).min().value
+    ymax=1.5*(eta_est[eta_high<np.inf]+eta_high[eta_high<np.inf]).max().value
     ebars=np.array([eta_low.value,eta_high.value])
     ebars[ebars==np.inf]=10*ymax
     plt.errorbar(Time(times,format='mjd').plot_date,eta_est.value,ebars,label='Measured')
