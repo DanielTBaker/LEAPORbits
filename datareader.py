@@ -314,7 +314,7 @@ def hg_fit(theta,eta,data):
 #                  fontsize=18)
 #     return(eta_est,eta_low,eta_high)
 
-def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd_lim=0*u.mHz,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10)):
+def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd_lim=0*u.mHz,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10)):
     nf=dynspec.shape[1]
     nt=dynspec.shape[0]
     df = (freqs[1]-freqs[0])*u.MHz
@@ -322,6 +322,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd
     T=(dt*nt).value
     
     dspec=np.copy(dynspec)
+    dspec=np.reshape(dspec,(-1,nf//rbd,rbd)).mean(2)
     #if taper (Use Tukey window to taper edges of dynspec)
     t_window = scipy.signal.windows.tukey(dynspec.shape[0], alpha=0.2, sym=True)
     dspec *= t_window[:,np.newaxis]
@@ -329,8 +330,8 @@ def eta_from_data(dynspec,freqs,times,rbin=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd
     dspec *= f_window[np.newaxis,:]
 
     #if pad (ADD PADDING, MASK REMOVAL)
-    dspec = np.pad(dspec,((0,nt),(0,nf)),mode='constant',constant_values=0)
-    SS = np.fft.fft2(dspec)/np.sqrt(nf*nt)
+    dspec = np.pad(dspec,((0,nt//rbd),(0,nf)),mode='constant',constant_values=0)
+    SS = np.fft.fft2(dspec)/np.sqrt(nf*nt//rbd)
     SS = np.fft.fftshift(SS)
     SS = abs(SS)**2.0
     
