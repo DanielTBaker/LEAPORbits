@@ -90,7 +90,9 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             rbin=args.rbin
         cal_file=fnames_cals[t_cals==t_cals[t_cals<data['time'][0]].max()]
         cal=datareader.cal_find(cal_file)
-        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(data['I']/cal[np.newaxis,:],data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
+        dspec=data['I']/cal[np.newaxis,:]
+        dspec[:,cal==0]=0
+        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
         pdf.savefig()
     plt.figure(figsize=(8,8))
     ymin=.9*(eta_est-eta_low).min().value
