@@ -54,7 +54,7 @@ times=np.sort(times)
 
 fnames_cals=np.array([list(f for f in os.listdir(cal_dirname) if f.endswith('cf'))])[0,:]
 t_cals=np.zeros(fnames_cals.shape[0])
-for i in range(fnames_cals.shape[0])
+for i in range(fnames_cals.shape[0]):
     t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
 
 eta_est=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
