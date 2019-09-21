@@ -78,6 +78,9 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
     N = SS[np.abs(tau)>9*tau.max()/10,:][:,np.abs(fd)>9*fd.max()/10].mean()
     
     times=np.linspace(t0.mjd,(t0+T*u.s).mjd,nt)
+    if freqs[1]<freqs[0]:
+        freqs=freqs[::-1]
+        dynspec=dynspec[:,::-1]
     return(times, freqs,N,dynspec,temp0,template,source)
 
 # def Hough(C,N,tau,fd,tau_lim,normed=False):
@@ -159,7 +162,6 @@ def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,normed=False):
     HT=np.zeros(etas.shape)
     sig_low=np.zeros(HT.shape)*u.ms/u.mHz**2
     sig_high=np.zeros(HT.shape)*u.ms/u.mHz**2
-    PN=(-Vals/N)-np.log(N)
     if normed:
         Vals/=(eta_high-eta_low).value
     for i in range(etas.shape[0]):
