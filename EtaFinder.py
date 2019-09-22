@@ -64,6 +64,7 @@ times=np.sort(times)
 eta_est=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_low=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_high=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
+use_data=np.ones(fnames.shape[0]).astype(bool)
 # with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
 #     for i in range(fnames.shape[0]):
 #         data=np.load('%s/%s' %(dirname_save,fnames[i]))
@@ -86,15 +87,22 @@ eta_high=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 
 with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
     for i in range(times.shape[0]):
-        print('Start %s / %s' %(i+1,times.shape[0]))
-        data=np.load('%s/%s' %(dirname_save,fnames[i]))
-        if args.rbin==0:
-            rbin=data['freq'].shape[0]
-        else:
-            rbin=args.rbin
-        dspec=data['I']
-        eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
-        pdf.savefig()
+        try:
+            print('Start %s / %s' %(i+1,times.shape[0]))
+            data=np.load('%s/%s' %(dirname_save,fnames[i]))
+            if args.rbin==0:
+                rbin=data['freq'].shape[0]
+            else:
+                rbin=args.rbin
+            dspec=data['I']
+            eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
+            pdf.savefig()
+        except:
+            use_data[i]=False
+    eta_est=eta_est[use_data]
+    eta_high=eta_high[use_data]
+    eta_low=eta_low[use_data]
+    times=times[use_data]
     plt.figure(figsize=(8,8))
     ymin=.9*(eta_est-eta_low).min().value
     ymax=1.5*(eta_est[eta_high<np.inf]+eta_high[eta_high<np.inf]).max().value
