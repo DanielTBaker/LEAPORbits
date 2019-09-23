@@ -43,7 +43,7 @@ if not args.ft[-4:]=='npz':
     for i in range(fnames_cals.shape[0]):
         t_cals[i]=datareader.cal_time('%s/%s' %(cal_dirname,fnames_cals[i]))
     for i in range(fnames.shape[0]):
-        if not os.path.exists('%s/%snpz' %(dirname_save,fnames[i][:-len(ftype)]))
+        if not os.path.exists('%s/%snpz' %(dirname_save,fnames[i][:-len(ftype)])):
             try:
                 print('Starting: %s' %fnames[i])
                 fname='%s/%s' %(dirname,fnames[i])
