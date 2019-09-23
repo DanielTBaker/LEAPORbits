@@ -17,10 +17,14 @@ parser.add_argument('-dir', default='', type=str,help='Data Directory')
 parser.add_argument('-dirC', default='', type=str,help='Calibration Directory')
 parser.add_argument('-dirS',default='', type=str,help='Save Directory')
 parser.add_argument('-ft',default='.npz',type=str,help='File Type') 
-parser.add_argument('-flim', default=10,type=float,help='f_D range for plots')
-parser.add_argument('-tlim', default=.05,type=float,help='Lowest tau for Hough Transform (us)')
+parser.add_argument('-fP', default=10,type=float,help='f_D limit for plots')
+parser.add_argument('-tP', default=1,type=float,help='tau limit for plots')
+parser.add_argument('-tH', default=.05,type=float,help='Lowest tau for Hough Transform (us)')
+parser.add_argument('-fH', default=.05,type=float,help='Lowest f_D for Hough Transform (mHz)')
 parser.add_argument('-rbin', default=0,type=int,help='Number of bins in rebinned SS')
 parser.add_argument('-rbd', default=1,type=int,help='Rebinning factor in DS')
+parser.add_argument('-Nr',default=5,type=float,help='S/N ratio for Hough Cutoff')
+
 
 
 args=parser.parse_args()
@@ -95,7 +99,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             else:
                 rbin=args.rbin
             dspec=data['I']
-            eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.flim,ylim=1,tau_lim=args.tlim*u.us,fd_lim=.1*u.uHz,srce=srce,prof=data['prof'],template=data['template'])
+            eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.fP,ylim=args.tP,tau_lim=args.tH*u.us,fd_lim=args.fH*u.mHz,srce=srce,prof=data['prof'],template=data['template'],Nr=args.Nr)
             pdf.savefig()
         except:
             use_data[i]=False

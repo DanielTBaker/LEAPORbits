@@ -122,12 +122,12 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
 #     tau=tau.to_value(u.us)
 #     return(etas,HT)
 
-def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,normed=False):
-    Vals=C[C>10*N]
+def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,Nr,normed=False):
+    Vals=C[C>Nr*N]
     x=fd[np.newaxis,:]*np.ones(C.shape)
     y=tau[:,np.newaxis]*np.ones(C.shape)
-    x=x[C>10*N]
-    y=y[C>10*N]
+    x=x[C>Nr*N]
+    y=y[C>Nr*N]
 #     y=y[np.abs(x)>(fd[1]-fd[0])/2]
 #     Vals=Vals[np.abs(x)>(fd[1]-fd[0])/2]
 #     x=x[np.abs(x)>(fd[1]-fd[0])/2]
@@ -189,7 +189,7 @@ def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,normed=False):
         
     return(etas,HT,sig_low,sig_high)
 
-def Hough_Rob(SS,tau,fd,rbin,tau_lim,fd_lim):
+def Hough_Rob(SS,tau,fd,rbin,tau_lim,fd_lim,Nr):
     bintau = int(SS.shape[0] // rbin)
     SSb = SS.reshape(SS.shape[0]//bintau, bintau,-1).mean(1)
     tau*=u.us
@@ -200,7 +200,7 @@ def Hough_Rob(SS,tau,fd,rbin,tau_lim,fd_lim):
     tau2=np.fft.ifftshift(tau)[::bintau]*u.ms
     fd2=np.fft.ifftshift(fd)*u.mHz
     N=SSb2[np.abs(tau2)>4*tau2.max()/5,:][:,np.abs(fd2)>4*fd2.max()/5].mean()
-    etas,HT,sig_low,sig_high=Hough_Prob(SSb2,N,tau2,fd2,tau_lim,fd_lim)
+    etas,HT,sig_low,sig_high=Hough_Prob(SSb2,N,tau2,fd2,tau_lim,fd_lim,Nr)
     fd=fd.value
     tau=tau.to_value(u.us)
     return(etas,HT,sig_low,sig_high)
@@ -322,7 +322,7 @@ def hg_fit(theta,eta,data):
 #                  fontsize=18)
 #     return(eta_est,eta_low,eta_high)
 
-def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd_lim=0*u.mHz,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10)):
+def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd_lim=0*u.mHz,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10),Nr=5):
     nf=dynspec.shape[1]
     nt=dynspec.shape[0]
     df = (freqs[1]-freqs[0])*u.MHz
@@ -358,7 +358,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     shigh = np.max(SSb)*10**(-1.5)
 
     # Hough Transform
-    etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim)
+    etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr)
 #     eta_est=etas[HT==HT.max()][0]
 #     eta_low=eta_est-etas[HT>HT.max()*np.exp(-1./2)].min()
 #     eta_high=etas[HT>HT.max()*np.exp(-1./2)].max()-eta_est
