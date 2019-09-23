@@ -48,7 +48,7 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
     N=Cmu[int(5*Cmu.shape[0]/6):].mean()
     Cmu-=N
     Cmu[Cmu<0]=0
-    f_mu=np.fft.rfftfreq(mu.shape[0])
+    f_mu=np.fft.rfftfreq(mu.shape[0],d=1024./mu.shape[0])
     Cmu[f_mu>1./30.]=0
     ACOR=np.fft.irfft(Cmu).real
     Smat=ACOR[np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[:,np.newaxis]-np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[np.newaxis,:]]
