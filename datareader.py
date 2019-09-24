@@ -20,7 +20,6 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
     cal=arch_cal.get_data()[:,(0,1)].mean(1)
 
     # Create folded spectrum, after offset and scaling
-    # foldspec, mask = sstools.clean_foldspec(dc, plots=False)
     foldspec = parkes_foldspec(dc,cal)
 
     # Get metadata

@@ -8,8 +8,6 @@ import os
 import re
 import argparse
 from matplotlib.backends.backend_pdf import PdfPages
-from scintillation.sstools import slowft as slowft
-from scintillation.sstools import ss_tools as sstools
 import datareader
 
 parser = argparse.ArgumentParser(description='Find Eta From Data')
