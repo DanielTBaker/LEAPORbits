@@ -452,7 +452,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ax3.set_ylabel(r'$\tau$ ($\mu$s)', fontsize=16) 
 
     ax3.set_xlim(-xlim, xlim)
-    ax3.set_ylim(0, ylim*max(tau))
+    ax3.set_ylim(0, ylim)
 
     # Plot Hough Transform
     ax4.loglog(etas[HT>0],HT[HT>0]/HT.max(),'r.')
