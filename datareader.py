@@ -42,28 +42,32 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
     # Multiply the profile by the template, sum over phase
     dynspec = (foldspec*template[np.newaxis,np.newaxis,:]).mean(-1)
     dynspec = np.nan_to_num(dynspec)
-    # mu=np.mean(dynspec,0)
-    # Fmu=np.fft.rfft(mu)/np.sqrt(mu.shape[0])
-    # Cmu=np.abs(Fmu)**2
-    # N=Cmu[int(5*Cmu.shape[0]/6):].mean()
-    # Cmu-=N
-    # Cmu[Cmu<0]=0
-    # f_mu=np.fft.rfftfreq(mu.shape[0],d=1024./mu.shape[0])
-    # Cmu[f_mu>1./30.]=0
-    # ACOR=np.fft.irfft(Cmu).real
-    # Smat=ACOR[np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[:,np.newaxis]-np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[np.newaxis,:]]
+    mu=np.mean(dynspec,0)
+    bad_mu=mu<mu.mean()-mu.std()
 
-    # Cmu=np.abs(Fmu)**2
-    # ACOR=np.fft.irfft(Cmu)
-    # Smat_NS=ACOR[np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[:,np.newaxis]-np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[np.newaxis,:]]
-    # Smat_NS[800:,800:]+=np.diag(np.ones(mu[800:].shape[0])*Smat_NS.max()*100)
-    # Smat_NS[180:190,180:190]+=np.diag(np.ones(10)*Smat_NS.max())
+    mu=np.pad(mu,(0,mu.shape[0]),mode='constant',constant_values=0)
+    bad_mu=np.pad(bad_mu,(0,bad_mu.shape[0]),mode='constant',constant_values=True)
 
+    Fmu=np.fft.rfft(mu)/np.sqrt(mu.shape[0])
+    Cmu=np.abs(Fmu)**2
+    N=Cmu[int(5*Cmu.shape[0]/6):].mean()
+    Cmu-=N
+    Cmu[Cmu<0]=0
+    f_mu=np.fft.rfftfreq(mu.shape[0],d=1024./mu.shape[0])
+    Cmu[f_mu>1./30.]=0
+    ACOR=np.fft.irfft(Cmu).real
+    Smat=ACOR[np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[:,np.newaxis]-np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[np.newaxis,:]]
 
-    # L= np.matmul(Smat,np.linalg.inv(Smat_NS))
-    # mu2= np.matmul(L,mu)
-    # dynspec*=mu2/mu
-    # dynspec[:,mu==0]=0
+    Cmu=np.abs(Fmu)**2
+    ACOR=np.fft.irfft(Cmu)
+    Smat_NS=ACOR[np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[:,np.newaxis]-np.linspace(0,mu.shape[0]-1,mu.shape[0]).astype(int)[np.newaxis,:]]
+    Smat_NS[bad_mu,bad_mu]=Smat_NS.max()*100
+
+    L= np.matmul(Smat,np.linalg.inv(Smat_NS))
+    mu2= np.matmul(L,mu)[:mu.shape[0]//2]
+    mu=mu[:mu.shape[0]//2]
+    dynspec*=mu2/mu
+    dynspec[:,mu==0]=0
 
 
     # dynspec[dynspec > sigma] = np.mean(dynspec)
