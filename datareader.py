@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import astropy.units as u
 from astropy.time import Time
-from scintillation.sstools import ss_tools as sstools
 from scipy.ndimage.filters import gaussian_filter
 import scipy
 from scipy.optimize import minimize
