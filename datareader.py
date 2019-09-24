@@ -380,7 +380,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     tau = np.fft.fftfreq(SS.shape[1], df*rbd)
     tau = np.fft.fftshift(tau.to(u.microsecond).value)
 
-    slow = SS[np.abs(ft)>5*ft.max()/6,np.abs(tau)>5*tau.max()/6].mean()*Nr
+    slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()*Nr
     shigh = np.max(SSb)*10**(-1.5)
 
     # Hough Transform
