@@ -370,9 +370,6 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     tau = np.fft.fftfreq(SS.shape[1], df*rbd)
     tau = np.fft.fftshift(tau.to(u.microsecond).value)
 
-    slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()*Nr
-    shigh = np.max(SSb)*10**(-1.5)
-
     # Hough Transform
     etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr)
     
@@ -428,6 +425,9 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     SS = abs(SS)**2.0
 
     SSb = SS.reshape(-1,SS.shape[1]//bintau, bintau).mean(-1)
+
+    slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()*Nr
+    shigh = np.max(SSb)*10**(-1.5)
 
     # Plot Secondary spectrum
     ax3.imshow(SSb.T, aspect='auto', vmin=slow, vmax=shigh, origin='lower',
