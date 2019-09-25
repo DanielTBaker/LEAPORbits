@@ -71,6 +71,7 @@ eta_est=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_low=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 eta_high=np.zeros(fnames.shape[0])*u.ms/u.mHz**2
 use_data=np.ones(fnames.shape[0]).astype(bool)
+f0=np.zeros(fnames.shape[0])
 # with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
 #     for i in range(fnames.shape[0]):
 #         data=np.load('%s/%s' %(dirname_save,fnames[i]))
@@ -99,6 +100,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             if data['freq'].max()>args.fmax:
                 use_data[i]=False
             else:
+                f0=data['freq'].mean()
                 if args.rbin==0:
                     rbin=data['freq'].shape[0]
                 else:
@@ -115,6 +117,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
     eta_high=eta_high[use_data]
     eta_low=eta_low[use_data]
     times=times[use_data]
+    f0=f0[use_data]
     plt.figure(figsize=(8,8))
     ymin=.9*(eta_est-eta_low).min().value
     ymax=1.5*(eta_est[eta_high<np.inf]+eta_high[eta_high<np.inf]).max().value
@@ -128,7 +131,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
     plt.xlabel('Time')
     plt.ylabel(r'$\eta$ ($ms/mHz**2$)')
     pdf.savefig()
-output=np.array([times,eta_est,eta_low,eta_high])
+output=np.array([times,eta_est,eta_low,eta_high,f0])
 np.save('%s/eta_params.npy' %dirname_save,output)
 
 

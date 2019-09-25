@@ -22,15 +22,14 @@ parser.add_argument('-th',type=int,default=80,help='Number of Threads')
 parser.add_argument('-nT',type=int,default=8,help='Number of Temperatures')
 parser.add_argument('-nb',type=int,default=1000,help='Burn Steps')
 parser.add_argument('-dir',type=str,default='./',help='Data Directory')
+parser.add_argument('-srce',type=str,default=None,help='Source Name')
 
 args=parser.parse_args()
 
 dirname=args.dir
+Source=args.srce
 
 print('Load Parameters',flush=True)
-DP_names=np.array([list(f for f in os.listdir(dirname) if f.endswith('npz'))])[0,:]
-DP=np.load('%s/%s' %(dirname,DP_names[0]))
-Source=DP['source']
 ##Knowns
 if not os.path.isfile('%s/%s_params.npy' %(dirname,Source)):
     try:
@@ -74,18 +73,14 @@ else:
     srce=SkyCoord(ra=ra,dec=dec)
 
 
-DP_names=np.array([list(f for f in os.listdir(dirname) if f.endswith('DP.npy'))])[0,:]
-DP=np.load('%s/%s' %(dirname,DP_names[0]))
-f0 = DP[:,3:5].mean(1)*u.MHz
-
-
 lwrs=np.array([0,-90,90,0])
 uprs=np.array([360,90,180,dp.to_value(u.kpc)])
 
 input=np.load('%s/eta_params.npy' %dirname)
 times=Time(input[0,:],format='mjd')
 eta_noisy=input[1,:]*u.ms/u.mHz**2
-sigma=input[2:,:].mean(0)*u.ms/u.mHz**2
+sigma=input[2:4,:].mean(0)*u.ms/u.mHz**2
+f0=input[4,:]*u.MHz
 
 ndim, nwalkers, nthreads, ntemps = 4, args.nw, args.th, args.nT
 
