@@ -96,7 +96,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
         try:
             print('Start %s / %s' %(i+1,times.shape[0]))
             data=np.load('%s/%s' %(dirname_save,fnames[i]))
-            if data['freq'].max()>args.fmax
+            if data['freq'].max()>args.fmax:
                 use_data[i]=False
             else:
                 if args.rbin==0:
