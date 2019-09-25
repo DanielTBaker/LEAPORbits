@@ -196,11 +196,12 @@ def Hough(C,N,tau,fd,tau_lim,fd_lim,Nr,use_inv,normed=False):
             any_below = np.any(below,axis=(1,2,3))
             any_above = np.any(np.invert(below),axis=(1,2,3))
             uAl = any_above*any_below +uA
+            val=np.sum(Vals[uAl])
         else:
             uAl = uA
+            val=np.mean(Vals[uAl])
 #         val=np.sum(PN[np.invert(uAl)])
 #         HT[i]=np.exp(val)
-        val=np.sum(Vals[uAl])
         HT[i]=val
         x_max=np.abs(x[uA]).max()
         y_max=y[uA][np.abs(x[uA])==x_max].max()
@@ -226,10 +227,11 @@ def Hough_Rob(SS,tau,fd,rbin,tau_lim,fd_lim,Nr,use_inv):
     tau2=np.fft.ifftshift(tau)[::bintau]*u.ms
     fd2=np.fft.ifftshift(fd)*u.mHz
     N=SSb2[np.abs(tau2)>4*tau2.max()/5,:][:,np.abs(fd2)>4*fd2.max()/5].mean()
-    etas,HT,sig_low,sig_high=Hough(SSb2,N,tau2,fd2,tau_lim,fd_lim,Nr,use_inv)
+    Ns=SSb2[np.abs(tau2)>4*tau2.max()/5,:][:,np.abs(fd2)>4*fd2.max()/5].std()
+    etas,HT,sig_low,sig_high=Hough(SSb2,N,Ns,tau2,fd2,tau_lim,fd_lim,Nr,use_inv)
     fd=fd.value
     tau=tau.to_value(u.us)
-    return(etas,HT,sig_low,sig_high)
+    return(etas,HT,sig_low,sig_high,Ns)
 
 def half_gau(theta,eta):
     eta_est,Amp,eta_low,eta_high=theta
@@ -381,12 +383,15 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     tau = np.fft.fftfreq(SS.shape[1], df*rbd)
     tau = np.fft.fftshift(tau.to(u.microsecond).value)
 
-    slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()*Nr
+    if Nr==0:
+        slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()
+    else:
+        slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()*Nr
     shigh = np.max(SSb)*10**(-1.5)
 
     # Hough Transform
     print('Hough Transform')
-    etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr,use_inv)
+    etas,HT,sig_low,sig_high,Ns=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr,use_inv)
 #     eta_est=etas[HT==HT.max()][0]
 #     eta_low=eta_est-etas[HT>HT.max()*np.exp(-1./2)].min()
 #     eta_high=etas[HT>HT.max()*np.exp(-1./2)].max()-eta_est
