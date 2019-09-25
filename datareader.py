@@ -407,6 +407,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
 #     eta_est*=u.ms/u.mHz**2
 #     eta_high*=u.ms/u.mHz**2
 #     eta_low*=u.ms/u.mHz**2
+    print('Determine Error Bars')
     if use_inv:
         eta_est=etas[HT==HT.max()].mean()
     #     eta_low=eta_est-etas[HT>=.99*HT.max()].min()
@@ -432,6 +433,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
 
     plt.subplots_adjust(wspace=0.1)
 
+    print('Plot Profile')
     profplot=np.concatenate((prof,prof))
     profplot2=np.concatenate((template,template))
     xplot=np.linspace(0,2,profplot.shape[0])
@@ -441,6 +443,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ax1.set_xlabel('phase', fontsize=16)
     ax1.set_xlim(0,2)
 
+    print('Plot DSPEC')
     # Plot dynamic spectrum image
     ax2.imshow(dspec_plot.T, aspect='auto', origin='lower',
                 extent=[0,T/60.,min(freqs), max(freqs)], cmap='Greys')
@@ -449,21 +452,8 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ax2.yaxis.tick_right()
     ax2.yaxis.set_label_position("right")
 
-    dspec=np.copy(dynspec)
-    dspec=np.reshape(dspec,(-1,nf//rbd,rbd)).mean(2)
-    #if taper (Use Tukey window to taper edges of dynspec)
-    t_window = scipy.signal.windows.tukey(dspec.shape[0], alpha=0.2, sym=True)
-    dspec *= t_window[:,np.newaxis]
-    f_window = scipy.signal.windows.tukey(dspec.shape[1], alpha=0.2, sym=True)
-    dspec *= f_window[np.newaxis,:]
-
-    #if pad (ADD PADDING, MASK REMOVAL)
-    dspec = np.pad(dspec,((0,nt//rbd),(0,nf)),mode='constant',constant_values=0)
-    SS = np.fft.fft2(dspec)/np.sqrt(nf*nt//rbd)
-    SS = np.fft.fftshift(SS)
-    SS = abs(SS)**2.0
-
     # Plot Secondary spectrum
+    print('Plot SS')
     ax3.imshow(SSb.T, aspect='auto', vmin=slow, vmax=shigh, origin='lower',
                extent=[min(ft), max(ft), min(tau), max(tau)], interpolation='nearest',
               cmap='Greys',
@@ -480,6 +470,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ax3.set_ylim(0, ylim)
 
     # Plot Hough Transform
+    print('Plot HT')
     ax4.loglog(etas[HT>0],HT[HT>0]/HT.max(),'r.')
     ax4.axvline(eta_est.value,color='r')
     ax4.axvline((eta_est+eta_high).value,color='r')
