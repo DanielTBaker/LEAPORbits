@@ -197,7 +197,7 @@ def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,Nr,normed=False):
         uAl = any_above*any_below +uA
 #         val=np.sum(PN[np.invert(uAl)])
 #         HT[i]=np.exp(val)
-        val=np.sum(Vals[uAl])
+        val=np.mean(Vals[uAl])
         HT[i]=val
         x_max=np.abs(x[uA]).max()
         y_max=y[uA][np.abs(x[uA])==x_max].max()
