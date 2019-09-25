@@ -145,7 +145,7 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
 #     tau=tau.to_value(u.us)
 #     return(etas,HT)
 
-def Hough(C,N,tau,fd,tau_lim,fd_lim,Nr,use_inv,normed=False):
+def Hough(C,N,Ns,tau,fd,tau_lim,fd_lim,Nr,use_inv,normed=False):
     Vals=C[C>Nr*N]
     x=fd[np.newaxis,:]*np.ones(C.shape)
     y=tau[:,np.newaxis]*np.ones(C.shape)
