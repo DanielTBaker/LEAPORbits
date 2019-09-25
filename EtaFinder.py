@@ -103,7 +103,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             else:
                 f0[i]=data['freq'].mean()
                 if args.rbin==0:
-                    rbin=data['freq'].shape[0]
+                    rbin=data['freq'].shape[0]/args.rbd
                 else:
                     rbin=args.rbin
                 print('Normalize DSPEC')
