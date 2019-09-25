@@ -114,8 +114,9 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
                 print('Call ETA search')
                 eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.fP,ylim=args.tP,tau_lim=args.tH*u.us,fd_lim=args.fH*u.mHz,srce=srce,prof=data['prof'],template=data['template'],Nr=args.Nr,use_inv=args.ui)
                 pdf.savefig()
-        except:
+        except Exception as e:
             use_data[i]=False
+            print(e)
     eta_est=eta_est[use_data]
     eta_high=eta_high[use_data]
     eta_low=eta_low[use_data]
