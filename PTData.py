@@ -33,7 +33,7 @@ print('Load Parameters',flush=True)
 ##Knowns
 if not os.path.isfile('%s/%s_params.npy' %(dirname,Source)):
     try:
-        query=QueryATNF(psrs=list((Source)))
+        query=QueryATNF(psrs=list([Source]))
         psrs = query.get_pulsars()
         cat=True
     except:
