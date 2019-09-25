@@ -355,6 +355,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     dt = (((times[-1]-times[0]) / nt)*u.day).to(u.s)
     T=(dt*nt).value
     
+    print('Prep DSPEC for FFT')
     dspec=np.copy(dynspec)
     dspec=np.reshape(dspec,(-1,nf//rbd,rbd)).mean(2)
     #if taper (Use Tukey window to taper edges of dynspec)
@@ -371,7 +372,8 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     
     bintau = int(SS.shape[1] // rbin)
 
-    SSb=np.reshape(SS,(-1,rbin,bintau)).mean(2)
+    print('Rebin SS')
+    SSb=np.reshape(SS,(SS.shape[0],rbin,bintau)).mean(2)
     # Calculate the confugate frequencies (time delay, fringe rate), only used for plotting
     ft = np.fft.fftfreq(SS.shape[0], dt)
     ft = np.fft.fftshift(ft.to(u.mHz).value)
@@ -383,6 +385,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     shigh = np.max(SSb)*10**(-1.5)
 
     # Hough Transform
+    print('Hough Transform')
     etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr,use_inv)
 #     eta_est=etas[HT==HT.max()][0]
 #     eta_low=eta_est-etas[HT>HT.max()*np.exp(-1./2)].min()
