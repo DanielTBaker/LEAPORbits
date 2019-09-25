@@ -97,6 +97,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
         try:
             print('Start %s / %s' %(i+1,times.shape[0]))
             data=np.load('%s/%s' %(dirname_save,fnames[i]))
+            print('Check if in freq range')
             if data['freq'].max()>args.fmax:
                 use_data[i]=False
             else:
@@ -105,6 +106,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
                     rbin=data['freq'].shape[0]
                 else:
                     rbin=args.rbin
+                print('Normalize DSPEC')
                 dspec=data['I']
                 mu=dspec.mean(0)
                 dspec/=mu
