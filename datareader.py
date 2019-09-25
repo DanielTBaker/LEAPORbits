@@ -371,6 +371,7 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     
     bintau = int(SS.shape[1] // rbin)
 
+    SSb=np.reshape(SS,(-1,rbin,bintau)).mean(2)
     # Calculate the confugate frequencies (time delay, fringe rate), only used for plotting
     ft = np.fft.fftfreq(SS.shape[0], dt)
     ft = np.fft.fftshift(ft.to(u.mHz).value)
