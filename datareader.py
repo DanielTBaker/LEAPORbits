@@ -197,7 +197,7 @@ def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,Nr,normed=False):
         uAl = any_above*any_below +uA
 #         val=np.sum(PN[np.invert(uAl)])
 #         HT[i]=np.exp(val)
-        val=np.mean(Vals[uAl])
+        val=np.sum(Vals[uAl])
         HT[i]=val
         x_max=np.abs(x[uA]).max()
         y_max=y[uA][np.abs(x[uA])==x_max].max()
@@ -354,11 +354,6 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     
     dspec=np.copy(dynspec)
     dspec=np.reshape(dspec,(-1,nf//rbd,rbd)).mean(2)
-    #if taper (Use Tukey window to taper edges of dynspec)
-    t_window = scipy.signal.windows.tukey(dspec.shape[0], alpha=0.2, sym=True)
-    dspec *= t_window[:,np.newaxis]
-    f_window = scipy.signal.windows.tukey(dspec.shape[1], alpha=0.2, sym=True)
-    dspec *= f_window[np.newaxis,:]
 
     #if pad (ADD PADDING, MASK REMOVAL)
     dspec = np.pad(dspec,((0,nt//rbd),(0,nf)),mode='constant',constant_values=0)
@@ -367,8 +362,6 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     SS = abs(SS)**2.0
     
     bintau = int(SS.shape[1] // rbin)
-
-    SSb = SS.reshape(-1,SS.shape[1]//bintau, bintau).mean(-1)
 
     # Calculate the confugate frequencies (time delay, fringe rate), only used for plotting
     ft = np.fft.fftfreq(SS.shape[0], dt)
@@ -382,21 +375,6 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
 
     # Hough Transform
     etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr)
-#     eta_est=etas[HT==HT.max()][0]
-#     eta_low=eta_est-etas[HT>HT.max()*np.exp(-1./2)].min()
-#     eta_high=etas[HT>HT.max()*np.exp(-1./2)].max()-eta_est
-#     if eta_low==0:
-#         eta_low=eta_est-etas[etas<eta_est].max()
-#     if eta_high==0:
-#         eta_high=etas[etas>eta_est].min()-eta_est
-#     print(eta_high)
-#     bounds=((0,np.inf),(0,np.inf),(0,np.inf),(0,np.inf))
-#     res=minimize(hg_fit,np.array([eta_est.value,1,eta_low.value,eta_high.value]),args=(etas[HT>0],HT[HT>0]/HT.max()),bounds=bounds)
-
-#     eta_est,Amp,eta_low,eta_high=res.x
-#     eta_est*=u.ms/u.mHz**2
-#     eta_high*=u.ms/u.mHz**2
-#     eta_low*=u.ms/u.mHz**2
     
     eta_est=etas[HT==HT.max()].mean()
 #     eta_low=eta_est-etas[HT>=.99*HT.max()].min()
@@ -434,6 +412,22 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     ax2.set_ylabel('freq (MHz)', fontsize=16)
     ax2.yaxis.tick_right()
     ax2.yaxis.set_label_position("right")
+
+    dspec=np.copy(dynspec)
+    dspec=np.reshape(dspec,(-1,nf//rbd,rbd)).mean(2)
+    #if taper (Use Tukey window to taper edges of dynspec)
+    t_window = scipy.signal.windows.tukey(dspec.shape[0], alpha=0.2, sym=True)
+    dspec *= t_window[:,np.newaxis]
+    f_window = scipy.signal.windows.tukey(dspec.shape[1], alpha=0.2, sym=True)
+    dspec *= f_window[np.newaxis,:]
+
+    #if pad (ADD PADDING, MASK REMOVAL)
+    dspec = np.pad(dspec,((0,nt//rbd),(0,nf)),mode='constant',constant_values=0)
+    SS = np.fft.fft2(dspec)/np.sqrt(nf*nt//rbd)
+    SS = np.fft.fftshift(SS)
+    SS = abs(SS)**2.0
+
+    SSb = SS.reshape(-1,SS.shape[1]//bintau, bintau).mean(-1)
 
     # Plot Secondary spectrum
     ax3.imshow(SSb.T, aspect='auto', vmin=slow, vmax=shigh, origin='lower',
