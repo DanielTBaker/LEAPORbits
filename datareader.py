@@ -145,7 +145,7 @@ def data_to_dspec(fname,fname_cal,profsig=5,sigma=10):
 #     tau=tau.to_value(u.us)
 #     return(etas,HT)
 
-def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,Nr,normed=False):
+def Hough(C,N,tau,fd,tau_lim,fd_lim,Nr,use_inv,normed=False):
     Vals=C[C>Nr*N]
     x=fd[np.newaxis,:]*np.ones(C.shape)
     y=tau[:,np.newaxis]*np.ones(C.shape)
@@ -191,10 +191,13 @@ def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,Nr,normed=False):
         uA = (eta_low<=etas[i])*(eta_high>=etas[i])
         xcA = xc[uA,:]
         ycA = yc[uA,:]
-        below = yc[:,:,np.newaxis,np.newaxis] < ycA[np.newaxis,np.newaxis,:,:] - etas[i]*(xc[:,:,np.newaxis,np.newaxis]-xcA[np.newaxis,np.newaxis,:,:])**2
-        any_below = np.any(below,axis=(1,2,3))
-        any_above = np.any(np.invert(below),axis=(1,2,3))
-        uAl = any_above*any_below +uA
+        if use_inv:
+            below = yc[:,:,np.newaxis,np.newaxis] < ycA[np.newaxis,np.newaxis,:,:] - etas[i]*(xc[:,:,np.newaxis,np.newaxis]-xcA[np.newaxis,np.newaxis,:,:])**2
+            any_below = np.any(below,axis=(1,2,3))
+            any_above = np.any(np.invert(below),axis=(1,2,3))
+            uAl = any_above*any_below +uA
+        else:
+            uAl = uA
 #         val=np.sum(PN[np.invert(uAl)])
 #         HT[i]=np.exp(val)
         val=np.sum(Vals[uAl])
@@ -212,7 +215,7 @@ def Hough_Prob(C,N,tau,fd,tau_lim,fd_lim,Nr,normed=False):
         
     return(etas,HT,sig_low,sig_high)
 
-def Hough_Rob(SS,tau,fd,rbin,tau_lim,fd_lim,Nr):
+def Hough_Rob(SS,tau,fd,rbin,tau_lim,fd_lim,Nr,use_inv):
     bintau = int(SS.shape[0] // rbin)
     SSb = SS.reshape(SS.shape[0]//bintau, bintau,-1).mean(1)
     tau*=u.us
@@ -223,7 +226,7 @@ def Hough_Rob(SS,tau,fd,rbin,tau_lim,fd_lim,Nr):
     tau2=np.fft.ifftshift(tau)[::bintau]*u.ms
     fd2=np.fft.ifftshift(fd)*u.mHz
     N=SSb2[np.abs(tau2)>4*tau2.max()/5,:][:,np.abs(fd2)>4*fd2.max()/5].mean()
-    etas,HT,sig_low,sig_high=Hough_Prob(SSb2,N,tau2,fd2,tau_lim,fd_lim,Nr)
+    etas,HT,sig_low,sig_high=Hough(SSb2,N,tau2,fd2,tau_lim,fd_lim,Nr,use_inv)
     fd=fd.value
     tau=tau.to_value(u.us)
     return(etas,HT,sig_low,sig_high)
@@ -345,7 +348,7 @@ def hg_fit(theta,eta,data):
 #                  fontsize=18)
 #     return(eta_est,eta_low,eta_high)
 
-def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd_lim=0*u.mHz,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10),Nr=5):
+def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u.ms,fd_lim=0*u.mHz,srce='',eta_true=None,prof=np.ones(10),template=np.ones(10),Nr=5,use_inv=True):
     nf=dynspec.shape[1]
     nt=dynspec.shape[0]
     df = (freqs[1]-freqs[0])*u.MHz
@@ -354,6 +357,11 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     
     dspec=np.copy(dynspec)
     dspec=np.reshape(dspec,(-1,nf//rbd,rbd)).mean(2)
+    #if taper (Use Tukey window to taper edges of dynspec)
+    t_window = scipy.signal.windows.tukey(dspec.shape[0], alpha=0.2, sym=True)
+    dspec *= t_window[:,np.newaxis]
+    f_window = scipy.signal.windows.tukey(dspec.shape[1], alpha=0.2, sym=True)
+    dspec *= f_window[np.newaxis,:]
 
     #if pad (ADD PADDING, MASK REMOVAL)
     dspec = np.pad(dspec,((0,nt//rbd),(0,nf)),mode='constant',constant_values=0)
@@ -370,8 +378,26 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     tau = np.fft.fftfreq(SS.shape[1], df*rbd)
     tau = np.fft.fftshift(tau.to(u.microsecond).value)
 
+    slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()*Nr
+    shigh = np.max(SSb)*10**(-1.5)
+
     # Hough Transform
-    etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr)
+    etas,HT,sig_low,sig_high=Hough_Rob(SS.T,tau,ft,rbin,tau_lim,fd_lim,Nr,use_inv)
+#     eta_est=etas[HT==HT.max()][0]
+#     eta_low=eta_est-etas[HT>HT.max()*np.exp(-1./2)].min()
+#     eta_high=etas[HT>HT.max()*np.exp(-1./2)].max()-eta_est
+#     if eta_low==0:
+#         eta_low=eta_est-etas[etas<eta_est].max()
+#     if eta_high==0:
+#         eta_high=etas[etas>eta_est].min()-eta_est
+#     print(eta_high)
+#     bounds=((0,np.inf),(0,np.inf),(0,np.inf),(0,np.inf))
+#     res=minimize(hg_fit,np.array([eta_est.value,1,eta_low.value,eta_high.value]),args=(etas[HT>0],HT[HT>0]/HT.max()),bounds=bounds)
+
+#     eta_est,Amp,eta_low,eta_high=res.x
+#     eta_est*=u.ms/u.mHz**2
+#     eta_high*=u.ms/u.mHz**2
+#     eta_low*=u.ms/u.mHz**2
     
     eta_est=etas[HT==HT.max()].mean()
 #     eta_low=eta_est-etas[HT>=.99*HT.max()].min()
@@ -423,11 +449,6 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
     SS = np.fft.fft2(dspec)/np.sqrt(nf*nt//rbd)
     SS = np.fft.fftshift(SS)
     SS = abs(SS)**2.0
-
-    SSb = SS.reshape(-1,SS.shape[1]//bintau, bintau).mean(-1)
-
-    slow = SS[np.abs(ft)>5*ft.max()/6,:][:,np.abs(tau)>5*tau.max()/6].mean()*Nr
-    shigh = np.max(SSb)*10**(-1.5)
 
     # Plot Secondary spectrum
     ax3.imshow(SSb.T, aspect='auto', vmin=slow, vmax=shigh, origin='lower',
