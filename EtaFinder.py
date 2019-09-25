@@ -108,9 +108,9 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
                     rbin=args.rbin
                 print('Normalize DSPEC')
                 dspec=data['I']
-                # mu=dspec.mean(0)
-                # dspec/=mu
-                # dspec[:,mu==0]=0
+                mu=dspec.mean(0)
+                dspec/=mu
+                dspec[:,mu==0]=0
                 print('Call ETA search')
                 eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.fP,ylim=args.tP,tau_lim=args.tH*u.us,fd_lim=args.fH*u.mHz,srce=srce,prof=data['prof'],template=data['template'],Nr=args.Nr,use_inv=arg.ui)
                 pdf.savefig()
