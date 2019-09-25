@@ -112,8 +112,9 @@ def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm
         return(-np.inf)
     inv_sigma2 = 1.0/sigma**2
     model=eta_orb(srce,times,Ecc, a, T0, Pb, Om_peri_dot, Om_peri, Om_orb, Om_scr,inc,dp,ds,f0,pm_ra,pm_dec)
-    if (data[sigma==np.inf]-model[sigma==np.inf]).min()<0:
-        return(-np.inf)
+    if sigma.max()==np.inf:
+        if (data[sigma==np.inf]-model[sigma==np.inf]).min()<0:
+            return(-np.inf)
     lp2 = -0.5*(np.sum((data[sigma<np.inf]-model[sigma<np.inf]).value**2*inv_sigma2[sigma<np.inf].value - np.log(inv_sigma2[sigma<np.inf].value)))
     return(lp+lp2)
 
