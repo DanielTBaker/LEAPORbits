@@ -22,6 +22,7 @@ parser.add_argument('-fH', default=.05,type=float,help='Lowest f_D for Hough Tra
 parser.add_argument('-rbin', default=0,type=int,help='Number of bins in rebinned SS')
 parser.add_argument('-rbd', default=1,type=int,help='Rebinning factor in DS')
 parser.add_argument('-Nr',default=5,type=float,help='S/N ratio for Hough Cutoff')
+parser.add_argument('-fmax',default=np.inf,type=float,help='Maximum observation frequency')
 
 
 
@@ -95,16 +96,19 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
         try:
             print('Start %s / %s' %(i+1,times.shape[0]))
             data=np.load('%s/%s' %(dirname_save,fnames[i]))
-            if args.rbin==0:
-                rbin=data['freq'].shape[0]
+            if data['freq'].max()>args.fmax
+                use_data[i]=False
             else:
-                rbin=args.rbin
-            dspec=data['I']
-            mu=dspec.mean(0)
-            dspec/=mu
-            dspec[:,mu==0]=0
-            eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.fP,ylim=args.tP,tau_lim=args.tH*u.us,fd_lim=args.fH*u.mHz,srce=srce,prof=data['prof'],template=data['template'],Nr=args.Nr)
-            pdf.savefig()
+                if args.rbin==0:
+                    rbin=data['freq'].shape[0]
+                else:
+                    rbin=args.rbin
+                dspec=data['I']
+                mu=dspec.mean(0)
+                dspec/=mu
+                dspec[:,mu==0]=0
+                eta_est[i],eta_low[i],eta_high[i]=datareader.eta_from_data(dspec,data['freq'],data['time'],rbin=rbin,rbd=args.rbd,xlim=args.fP,ylim=args.tP,tau_lim=args.tH*u.us,fd_lim=args.fH*u.mHz,srce=srce,prof=data['prof'],template=data['template'],Nr=args.Nr)
+                pdf.savefig()
         except:
             use_data[i]=False
     eta_est=eta_est[use_data]
