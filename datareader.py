@@ -402,17 +402,21 @@ def eta_from_data(dynspec,freqs,times,rbin=1,rbd=1,xlim=30,ylim=1,tau_lim=.001*u
 #     eta_est*=u.ms/u.mHz**2
 #     eta_high*=u.ms/u.mHz**2
 #     eta_low*=u.ms/u.mHz**2
-    
-    eta_est=etas[HT==HT.max()].mean()
-#     eta_low=eta_est-etas[HT>=.99*HT.max()].min()
-#     eta_high=etas[HT>=.99*HT.max()].max()-eta_est
-    if sig_high[HT==HT.max()].max()==np.inf:
-        eta_est=sig_low[sig_high==np.inf].max()
-        eta_high=np.inf
-        eta_low=0*u.ms/u.mHz**2
+    if use_inv:
+        eta_est=etas[HT==HT.max()].mean()
+    #     eta_low=eta_est-etas[HT>=.99*HT.max()].min()
+    #     eta_high=etas[HT>=.99*HT.max()].max()-eta_est
+        if sig_high[HT==HT.max()].max()==np.inf:
+            eta_est=sig_low[sig_high==np.inf].max()
+            eta_high=np.inf
+            eta_low=0*u.ms/u.mHz**2
+        else:
+            eta_low=(sig_high[HT==HT.max()].max()-sig_low[HT==HT.max()].min())/2
+            eta_high=(sig_high[HT==HT.max()].max()-sig_low[HT==HT.max()].min())/2
     else:
-        eta_low=(sig_high[HT==HT.max()].max()-sig_low[HT==HT.max()].min())/2
-        eta_high=(sig_high[HT==HT.max()].max()-sig_low[HT==HT.max()].min())/2
+        eta_est=etas[HT==HT.max()].mean()
+        eta_low=eta_est-etas[HT>=.9*HT.max()].min()
+        eta_low=etas[HT>=.9*HT.max()].max()-eta_est
     nbin = dynspec.shape[0]//2
     dspec_plot = dynspec[:nbin*2].reshape(nbin, 2, dynspec.shape[-1]).mean(1)
     plt.figure(figsize=(10,15))
