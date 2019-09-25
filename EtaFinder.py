@@ -100,7 +100,7 @@ with PdfPages('%s/%s_etas.pdf' %(dirname_save,srce)) as pdf:
             if data['freq'].max()>args.fmax:
                 use_data[i]=False
             else:
-                f0=data['freq'].mean()
+                f0[i]=data['freq'].mean()
                 if args.rbin==0:
                     rbin=data['freq'].shape[0]
                 else:
