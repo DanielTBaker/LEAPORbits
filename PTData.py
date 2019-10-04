@@ -133,8 +133,8 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
                 axes[k].plot(sampler.chain[k,l,:,i])
         pdf.savefig()
         plt.close()
-    times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
-    eta_fit = orbfits.eta_orb(srce,times_curve,Ecc, np.abs(A1 / np.sin(samples[:,2].mean()*u.deg)), T0, Pb, Om_peri_dot, Om_peri, samples[:,0].mean()*u.deg, samples[:,1].mean()*u.deg, samples[:,2].mean()*u.deg,
+    # times_curve=Time(np.linspace(times.min().mjd,times.max().mjd,10000),format='mjd')
+    eta_fit = orbfits.eta_orb(srce,times,Ecc, np.abs(A1 / np.sin(samples[:,2].mean()*u.deg)), T0, Pb, Om_peri_dot, Om_peri, samples[:,0].mean()*u.deg, samples[:,1].mean()*u.deg, samples[:,2].mean()*u.deg,
                    dp, samples[:,3].mean()*u.kpc, f0.mean(), pm_ra, pm_dec)
 
     plt.figure()
@@ -144,7 +144,7 @@ with PdfPages('%s/PT_Results.pdf' %dirname) as pdf:
     ebars[0,sigma==np.inf]=0
     ebars[1,sigma==np.inf]=10*ymax
     plt.errorbar(times.plot_date,eta_noisy.value,ebars,label='Data')
-    plt.plot_date(times_curve.plot_date,eta_fit,'-',label='Fit (MCMC)')
+    plt.plot_date(times.plot_date,eta_fit,'-',label='Fit (MCMC)')
     plt.legend(loc=0)
     plt.ylim((ymin,ymax))
     plt.yscale('log')
