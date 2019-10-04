@@ -10,21 +10,21 @@ from psrqpy import QueryATNF
 ##Calculate ra and dec components of Earth's velocity on the sky
 def E_proj_vel(srce,T):
     ##Get source location
-    srce_cart=srce.transform_to('barycentrictrueecliptic').represent_as('cartesian')
+    srce_cart=srce.represent_as('cartesian')
     ##Get Earth velocity
     earth_posvel=get_body_barycentric_posvel('earth', T)
 
     ##Find unit vector in ra direction
-    srce_dra=SkyCoord(ra=srce.ra+1e-7*u.deg,dec=srce.dec)
-    srce_dra_cart=srce_dra.transform_to('barycentrictrueecliptic').represent_as('cartesian')
+    srce_dra=SkyCoord(ra=srce.ra+1e-7*u.deg,dec=srce.dec,frame='icrs')
+    srce_dra_cart=srce_dra.represent_as('cartesian')
     unit_dra=srce_dra_cart-srce_cart
     unit_dra=unit_dra/np.sqrt(unit_dra.x**2+unit_dra.y**2+unit_dra.z**2)
 
     E_V_ra=unit_dra.dot(earth_posvel[1]).to(u.km/u.s)
 
     ##Find unit vector in dec direction
-    srce_ddec=SkyCoord(ra=srce.ra,dec=srce.dec+1e-7*u.deg)
-    srce_ddec_cart=srce_ddec.transform_to('barycentrictrueecliptic').represent_as('cartesian')
+    srce_ddec=SkyCoord(ra=srce.ra,dec=srce.dec+1e-7*u.deg,frame='icrs')
+    srce_ddec_cart=srce_ddec.represent_as('cartesian')
     unit_ddec=srce_ddec_cart-srce_cart
     unit_ddec=unit_ddec/np.sqrt(unit_ddec.x**2+unit_ddec.y**2+unit_ddec.z**2)
 
@@ -116,7 +116,7 @@ def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm
         if (data[sigma==np.inf]-model[sigma==np.inf]).min()<0:
             return(-np.inf)
     lp2 = -0.5*(np.sum((data[sigma<np.inf]-model[sigma<np.inf]).value**2*inv_sigma2[sigma<np.inf].value - np.log(inv_sigma2[sigma<np.inf].value)))
-    return(lp+lp2)
+    return(lp2)
 
 def bound_prior(x,lower,upper):
     if x>lower and x<upper:
