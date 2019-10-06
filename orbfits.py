@@ -116,7 +116,7 @@ def lnprob(theta,data,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm
         if (data[sigma==np.inf]-model[sigma==np.inf]).min()<0:
             return(-np.inf)
     lp2 = -0.5*(np.sum((data[sigma<np.inf]-model[sigma<np.inf]).value**2*inv_sigma2[sigma<np.inf].value - np.log(inv_sigma2[sigma<np.inf].value)))
-    return(lp2)
+    return(lp2+lp)
 
 def bound_prior(x,lower,upper):
     if x>lower and x<upper:

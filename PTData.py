@@ -88,11 +88,7 @@ def PT_func(theta):
    return(orbfits.lnprob(theta,eta_noisy,sigma,srce,times,Ecc,T0, Pb, Om_peri_dot, Om_peri,dp,f0,pm_ra,pm_dec, A1,lwrs,uprs))
 
 def lnprior(theta):
-    if (theta-lwrs).min()<0:
-        return(-np.inf)
-    if (theta-uprs).max()>0:
-        return(-np.inf)
-    return(np.log(np.sin(theta[-2]*u.deg).value/2))
+    return(0.0)
 
 pos = np.random.uniform(0,1,(ntemps,nwalkers,ndim))*(uprs-lwrs)[np.newaxis,np.newaxis,:]+lwrs[np.newaxis,np.newaxis,:]
 
