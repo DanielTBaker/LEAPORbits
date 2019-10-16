@@ -124,6 +124,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
             dof_abs[i]=(SS_red2[tau_red>0,:].shape[0]*SS_red2[tau_red>0,:].shape[1])-1
         
     ##Find Region Around minimum
+    print(etas_abs,chisq_abs)
     C=chisq_abs.min()
     x0=etas_abs[chisq_abs==C][0].value
     A=C/(etas_abs[1]-etas_abs[0]).value**2
