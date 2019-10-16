@@ -27,7 +27,7 @@ def thth_map(SS, tau, fd, eta, edges,fill_value=0):
     thth = np.ones(tau_inv.shape,dtype=complex)*fill_value
 
     pnts = (np.abs(tau_inv) < tau.shape[0]/2) * (np.abs(fd_inv) < fd.shape[0]/2)
-    print(tau_inv[pnts].max(),tau_inv[pnts].min(),fd_inv[pnts].max(),fd_inv[pnts].min())
+    print(eta,tau_inv[pnts].max(),tau_inv[pnts].min(),fd_inv[pnts].max(),fd_inv[pnts].min())
     
     thth[pnts] = SS[tau_inv[pnts], fd_inv[pnts]]
     
