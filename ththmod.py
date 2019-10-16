@@ -144,7 +144,11 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
     edges=np.linspace(-fd_lim,fd_lim,nth2)
     th_cents=(edges[1:]+edges[:-1])/2
     th_cents-=th_cents[np.abs(th_cents)==np.abs(th_cents).min()]
-    etas=np.linspace(eta-2*eta_sig,eta+2*eta_sig,neta2)*eta_low.unit
+    eta_low=eta-2*eta_sig
+    etas=np.linspace(eta_low,eta+2*eta_sig,neta2)
+    if eta_low<0:
+        eta_low=etas[etas>0].min()
+    etas=np.linspace(eta_low,eta+2*eta_sig,neta2)*eta_low.unit
     chisq=np.zeros(etas.shape)
     dof=np.zeros(etas.shape)
     
