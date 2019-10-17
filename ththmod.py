@@ -2,6 +2,7 @@ import numpy as np
 import astropy.units as u
 from scipy.linalg import eigh
 from scipy.optimize import curve_fit
+import matplotlib.pyplot as plt
 
 def chi_par(x,A,x0,C):
     return(A*(x-x0)**2+C)
