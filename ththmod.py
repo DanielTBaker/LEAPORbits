@@ -134,7 +134,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
 
     popt,pcov=curve_fit(chi_par,etas_fit.value,chisq_fit,p0=np.array([A,x0,C]))
 
-
+    print(popt,chisq_fit)
     eta=popt[1]
     eta_sig=np.sqrt((chisq_fit-chi_par(etas_fit.value,*popt)).std()/popt[0])
 
