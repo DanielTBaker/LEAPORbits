@@ -27,7 +27,6 @@ def thth_map(SS, tau, fd, eta, edges,fill_value=0):
     thth = np.ones(tau_inv.shape,dtype=complex)*fill_value
 
     pnts = (np.abs(tau_inv) < tau.shape[0]/2) * (np.abs(fd_inv) < fd.shape[0]/2)
-    print(eta,tau_inv[pnts].max(),tau_inv[pnts].min(),fd_inv[pnts].max(),fd_inv[pnts].min())
     
     thth[pnts] = SS[tau_inv[pnts], fd_inv[pnts]]
     
@@ -124,7 +123,6 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
             dof_abs[i]=(SS_red2[tau_red>0,:].shape[0]*SS_red2[tau_red>0,:].shape[1])-1
         
     ##Find Region Around minimum
-    print(etas_abs,chisq_abs)
     C=chisq_abs.min()
     x0=etas_abs[chisq_abs==C][0].value
     A=C/(etas_abs[1]-etas_abs[0]).value**2
@@ -144,11 +142,12 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
     edges=np.linspace(-fd_lim,fd_lim,nth2)
     th_cents=(edges[1:]+edges[:-1])/2
     th_cents-=th_cents[np.abs(th_cents)==np.abs(th_cents).min()]
-    eta_low=eta-2*eta_sig
-    etas=np.linspace(eta_low,eta+2*eta_sig,neta2)
-    if eta_low<0:
-        eta_low=etas[etas>0].min()
-    etas=np.linspace(eta_low,eta+2*eta_sig,neta2)*eta_low.unit
+    eta_low2=eta-2*eta_sig
+    etas=np.linspace(eta_low2,eta+2*eta_sig,neta2)*eta_low.unit
+    print(eta,eta_sig)
+    if eta_low2<0:
+        eta_low2=etas[etas>0].min().value
+        etas=np.linspace(eta_low2,eta+2*eta_sig,neta2)*eta_low.unit
     chisq=np.zeros(etas.shape)
     dof=np.zeros(etas.shape)
     
@@ -186,8 +185,8 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
             chisq[i]=np.sum(((np.abs(SS_rev-SS)**2)/N)[mask])
             dof[i]=(SS[tau>0,:].shape[0]*SS[tau>0,:].shape[1])-1
     try:
-        chisq_fit=chisq[np.abs(etas-etas[chisq==chisq.min()])<np.diff(etas).mean()*10]
-        etas_fit=etas[np.abs(etas-etas[chisq==chisq.min()])<np.diff(etas).mean()*10]
+        chisq_fit=chisq[np.abs(etas-etas[chisq==chisq.min()])<np.diff(etas).mean()*50]
+        etas_fit=etas[np.abs(etas-etas[chisq==chisq.min()])<np.diff(etas).mean()*50]
 
         chisq_fit=chisq_fit[np.argsort(etas_fit)]
         etas_fit=etas_fit[np.argsort(etas_fit)]
@@ -197,7 +196,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
         popt,pcov=curve_fit(chi_par,etas_fit.value,chisq_fit,p0=(A,x0,C))
 
         eta_fit=popt[1]*eta_low.unit
-        eta_sig=(1/np.sqrt(popt[0]))*eta_low.unit
+        eta_sig=np.sqrt((chisq_fit-chi_par(etas_fit.value,*popt)).std()/popt[0])*eta_low.unit
     except:
         eta_sig=None
         eta_fit=None
