@@ -95,7 +95,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
         ##Find thth plot
         thth=thth_map(SS_red2, tau_red, fd_red, eta, edges,fill_value=0)
         ##Reduce to largest full square THTH matrix
-        th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)) * (np.abs(th_cents)<np.abs(fd.max()).value)
+        th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)/2) * (np.abs(th_cents)<np.abs(fd.max()).value/2)
         thth_red=thth[th_pnts,:][:,th_pnts]
         edges_red=th_cents[th_pnts]
         edges_red=(edges_red[:-1]+edges_red[1:])/2
@@ -127,8 +127,8 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
     C=chisq_abs.min()
     x0=etas_abs[chisq_abs==C][0].value
     A=C/(etas_abs[1]-etas_abs[0]).value**2
-    etas_fit=etas_abs[np.argsort(chisq_abs)][:20]
-    chisq_fit=chisq_abs[np.argsort(chisq_abs)][:20]
+    etas_fit=etas_abs[np.argsort(chisq_abs)][:100]
+    chisq_fit=chisq_abs[np.argsort(chisq_abs)][:100]
 
     chisq_fit=chisq_fit[np.argsort(etas_fit)]
     etas_fit=etas_fit[np.argsort(etas_fit)]
@@ -163,7 +163,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
         ##Find thth plot
         thth=thth_map(SS, tau, fd, eta, edges,fill_value=0)
         ##Reduce to largest full square THTH matrix
-        th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)) * (np.abs(th_cents)<np.abs(fd.max()).value)
+        th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)/2) * (np.abs(th_cents)<np.abs(fd.max()).value/2)
         thth_red=thth[th_pnts,:][:,th_pnts]
         edges_red=th_cents[th_pnts]
         edges_red=(edges_red[:-1]+edges_red[1:])/2
