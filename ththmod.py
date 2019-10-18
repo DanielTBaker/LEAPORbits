@@ -55,7 +55,7 @@ def thth_redmap(SS, tau, fd, eta, edges):
                                 np.array([edges_red[-1]+np.diff(edges_red).mean()])))
     return(thth_red,edges_red)
 
-def chisq_calc(SS, tau, fd, eta, edges,mask,N)
+def chisq_calc(SS, tau, fd, eta, edges,mask,N):
     thth_red,edges_red=thth_redmap(SS, tau, fd, eta, edges)
     w,V=eigh(thth_red)
     ##Use larges eigenvector/value as model
