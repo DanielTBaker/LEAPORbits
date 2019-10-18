@@ -17,7 +17,7 @@ def thth_err(N,eta,edges):
     err=err**2
     return(err)
 
-def thth_map(SS, tau, fd, eta, edges,fill_value=0):
+def thth_map(SS, tau, fd, eta, edges):
     th_cents = (edges[1:] + edges[:-1]) / 2
     th_cents -= th_cents[np.abs(th_cents) == np.abs(th_cents).min()]
     th1 = np.ones((th_cents.shape[0], th_cents.shape[0])) * th_cents
@@ -25,7 +25,7 @@ def thth_map(SS, tau, fd, eta, edges,fill_value=0):
     tau_inv = ((eta.value * (th1**2 - th2**2) /
                 tau[1].value)).round().astype(int)
     fd_inv = (((th1 - th2) / fd.value[1])).round().astype(int)
-    thth = np.ones(tau_inv.shape,dtype=complex)*fill_value
+    thth = np.zeros(tau_inv.shape,dtype=complex)
 
     pnts = (np.abs(tau_inv) < tau.shape[0]/2) * (np.abs(fd_inv) < fd.shape[0]/2)
     
@@ -42,8 +42,8 @@ def thth_map(SS, tau, fd, eta, edges,fill_value=0):
     thth=np.nan_to_num(thth)
     return (thth)
 
-def thth_redmap(SS, tau, fd, eta, edges,fill_value=0):
-    thth=thth_map(SS, tau, fd, eta, edges,fill_value=0)
+def thth_redmap(SS, tau, fd, eta, edges):
+    thth=thth_map(SS, tau, fd, eta, edges)
     th_cents=(edges[1:]+edges[:-1])/2
     th_cents-=th_cents[np.abs(th_cents)==np.abs(th_cents).min()]
     th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)/2) * (np.abs(th_cents)<np.abs(fd.max()).value/2)
@@ -54,6 +54,17 @@ def thth_redmap(SS, tau, fd, eta, edges,fill_value=0):
                                 edges_red,
                                 np.array([edges_red[-1]+np.diff(edges_red).mean()])))
     return(thth_red,edges_red)
+
+def chisq_calc(SS, tau, fd, eta, edges,mask,N)
+    thth_red,edges_red=thth_redmap(SS, tau, fd, eta, edges)
+    w,V=eigh(thth_red)
+    ##Use larges eigenvector/value as model
+    thth2_red=np.outer(V[:,np.abs(w)==np.abs(w).max()],np.conjugate(V[:,np.abs(w)==np.abs(w).max()]))
+    thth2_red*=np.abs(w[np.abs(w)==np.abs(w).max()])
+    thth2_red[thth_red==0]=0
+    SS_rev=rev_map(thth2_red,tau,fd,eta,edges_red)
+    chisq=np.sum(((np.abs(SS_rev-SS_red2)**2)/N)[mask])
+    return(chisq)
 
 def rev_map(thth,tau,fd,eta,edges):
     th_cents = (edges[1:] + edges[:-1]) / 2
@@ -97,36 +108,13 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
     th_cents-=th_cents[np.abs(th_cents)==np.abs(th_cents).min()]
     etas_abs=np.linspace(eta_low.value,eta_high.value,neta1)*eta_low.unit
     chisq_abs=np.zeros(etas_abs.shape)
-    dof_abs=np.zeros(etas_abs.shape)
     
     SS_red2=SS_red-SS_red[np.abs(tau_red)>5*tau_red.max()/6,:][:,np.abs(fd_red)>5*fd_red.max()/6].mean()
 
     ##Calculate chisq for each eta
     for i in range(etas_abs.shape[0]):
         eta=etas_abs[i]
-
-        ##Find thth plot
-        thth_red,edges_red=thth_redmap(SS_red2, tau_red, fd_red, eta, edges,fill_value=0)
-        ##Calculate Eigenvectors/values
-        w,V=eigh(thth_red)
-        ##Use larges eigenvector/value as model
-        thth2_red=np.outer(V[:,np.abs(w)==np.abs(w).max()],np.conjugate(V[:,np.abs(w)==np.abs(w).max()]))
-        thth2_red*=np.abs(w[np.abs(w)==np.abs(w).max()])
-        thth2_red[thth_red==0]=0
-        if thth_fit:
-            ##Find error in THTH
-            err=thth_err(N2,eta,edges)
-            err_red=err[th_pnts,:][:,th_pnts]
-
-            ##Calculate chi^2
-            chisq_abs[i]=((np.abs(thth2_red-thth_red)**2)/err_red)[err_red>0].sum()
-            chisq_abs[i]+=(np.abs(thth[err>0])**2/err[err>0]).sum() - (np.abs(thth_red[err_red>0])**2/err_red[err_red>0]).sum() 
-
-            dof_abs[i]=err_red[err_red>0].shape[0]-1
-        else:
-            SS_rev=rev_map(thth2_red,tau_red,fd_red,eta,edges_red)
-            chisq_abs[i]=np.sum(((np.abs(SS_rev-SS_red2)**2)/N2)[mask_red])
-            dof_abs[i]=(SS_red2[tau_red>0,:].shape[0]*SS_red2[tau_red>0,:].shape[1])-1
+        chisq_abs[i]=chisq_calc(SS_red, tau_red, fd_red, eta, edges,mask_red,N2)
         
     ##Find Region Around minimum
     C=chisq_abs.min()
@@ -160,33 +148,11 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
         eta_low2=etas[etas>0].min().value
         etas=np.linspace(eta_low2,eta+2*eta_sig,neta2)*eta_low.unit
     chisq=np.zeros(etas.shape)
-    dof=np.zeros(etas.shape)
     
     ##Calculate chisq for each eta
     for i in range(etas.shape[0]):
         eta=etas[i]
-
-        ##Find thth plot
-        thth_red,edges_red=thth_redmap(SS, tau, fd, eta, edges,fill_value=0)
-        ##Calculate Eigenvectors/values
-        w,V=eigh(thth_red)
-        ##Use larges eigenvector/value as model
-        thth2_red=np.outer(V[:,np.abs(w)==np.abs(w).max()],np.conjugate(V[:,np.abs(w)==np.abs(w).max()]))
-        thth2_red*=np.abs(w[np.abs(w)==np.abs(w).max()])
-        thth2_red[thth_red==0]=0
-        if thth_fit:
-            ##Find error in THTH
-            err=thth_err(N,eta,edges)
-            err_red=err[th_pnts,:][:,th_pnts]
-
-            ##Calculate chi^2
-            chisq[i]=((np.abs(thth2_red-thth_red)**2)/err_red)[err_red>0].sum()
-            chisq[i]+=(np.abs(thth[err>0])**2/err[err>0]).sum() -( np.abs(thth_red[err_red>0])**2/err_red[err_red>0]).sum() 
-            dof[i]=err_red[err_red>0].shape[0]-1
-        else:
-            SS_rev=rev_map(thth2_red,tau,fd,eta,edges_red)
-            chisq[i]=np.sum(((np.abs(SS_rev-SS)**2)/N)[mask])
-            dof[i]=(SS[tau>0,:].shape[0]*SS[tau>0,:].shape[1])-1
+        chisq[i]=chisq_calc(SS, tau, fd, eta, edges,mask,N)
     try:
         chisq_fit=chisq[np.abs(etas-etas[chisq==chisq.min()])<np.diff(etas).mean()*50]
         etas_fit=etas[np.abs(etas-etas[chisq==chisq.min()])<np.diff(etas).mean()*50]
