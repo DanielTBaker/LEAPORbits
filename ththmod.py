@@ -132,8 +132,8 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
     C=chisq_abs.min()
     x0=etas_abs[chisq_abs==C][0].value
     A=C/(etas_abs[1]-etas_abs[0]).value**2
-    etas_fit=etas_abs[np.abs(etas_abs-etas_abs[chisq_abs==chisq.abs.min()])<np.diff(etas_abs).mean()*50]
-    chisq_fit=chisq_abs[np.abs(etas_abs-etas_abs[chisq_abs==chisq.abs.min()])<np.diff(etas_abs).mean()*50]
+    etas_fit=etas_abs[np.abs(etas_abs-etas_abs[chisq_abs==chisq_abs.min()])<np.diff(etas_abs).mean()*50]
+    chisq_fit=chisq_abs[np.abs(etas_abs-etas_abs[chisq_abs==chisq_abs.min()])<np.diff(etas_abs).mean()*50]
 
     chisq_fit=chisq_fit[np.argsort(etas_fit)]
     etas_fit=etas_fit[np.argsort(etas_fit)]
