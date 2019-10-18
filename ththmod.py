@@ -129,8 +129,9 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
     plt.plot(etas_fit,chisq_fit,'.')
     popt,pcov=curve_fit(chi_par,etas_fit.value,chisq_fit,p0=np.array([A,x0,C]))
     while popt[0]<0 or popt[1]<0:
-        etas_fit=etas_fit[1:-1]
-        chisq_fit=chisq_fit[1:-1]
+        pnts=np.abs(etas_fit-etas_fit[chisq_fit==chisq_fit.min()])<np.abs(etas_fit-etas_fit[chisq_fit==chisq_fit.min()]).max()
+        chisq_fit=chisq_fit[pnts]
+        etas_fit=etas_fit[pnts]
         plt.figure()
         plt.plot(etas_fit,chisq_fit,'.')
         popt,pcov=curve_fit(chi_par,etas_fit.value,chisq_fit,p0=np.array([A,x0,C]))
