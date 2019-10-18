@@ -42,6 +42,19 @@ def thth_map(SS, tau, fd, eta, edges,fill_value=0):
     thth=np.nan_to_num(thth)
     return (thth)
 
+def thth_redmap(SS, tau, fd, eta, edges,fill_value=0):
+    thth=thth_map(SS, tau, fd, eta, edges,fill_value=0)
+    th_cents=(edges[1:]+edges[:-1])/2
+    th_cents-=th_cents[np.abs(th_cents)==np.abs(th_cents).min()]
+    th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)/2) * (np.abs(th_cents)<np.abs(fd.max()).value/2)
+    thth_red=thth[th_pnts,:][:,th_pnts]
+    edges_red=th_cents[th_pnts]
+    edges_red=(edges_red[:-1]+edges_red[1:])/2
+    edges_red=np.concatenate((np.array([edges_red[0]-np.diff(edges_red).mean()]),
+                                edges_red,
+                                np.array([edges_red[-1]+np.diff(edges_red).mean()])))
+    return(thth_red,edges_red)
+
 def rev_map(thth,tau,fd,eta,edges):
     th_cents = (edges[1:] + edges[:-1]) / 2
     th_cents -= th_cents[np.abs(th_cents) == np.abs(th_cents).min()]
@@ -93,15 +106,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
         eta=etas_abs[i]
 
         ##Find thth plot
-        thth=thth_map(SS_red2, tau_red, fd_red, eta, edges,fill_value=0)
-        ##Reduce to largest full square THTH matrix
-        th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)/2) * (np.abs(th_cents)<np.abs(fd.max()).value/2)
-        thth_red=thth[th_pnts,:][:,th_pnts]
-        edges_red=th_cents[th_pnts]
-        edges_red=(edges_red[:-1]+edges_red[1:])/2
-        edges_red=np.concatenate((np.array([edges_red[0]-np.diff(edges_red).mean()]),
-                                  edges_red,
-                                  np.array([edges_red[-1]+np.diff(edges_red).mean()])))
+        thth_red,edges_red=thth_redmap(SS_red2, tau_red, fd_red, eta, edges,fill_value=0)
         ##Calculate Eigenvectors/values
         w,V=eigh(thth_red)
         ##Use larges eigenvector/value as model
@@ -162,15 +167,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
         eta=etas[i]
 
         ##Find thth plot
-        thth=thth_map(SS, tau, fd, eta, edges,fill_value=0)
-        ##Reduce to largest full square THTH matrix
-        th_pnts=((th_cents**2)*eta.value<np.abs(tau.max().value)/2) * (np.abs(th_cents)<np.abs(fd.max()).value/2)
-        thth_red=thth[th_pnts,:][:,th_pnts]
-        edges_red=th_cents[th_pnts]
-        edges_red=(edges_red[:-1]+edges_red[1:])/2
-        edges_red=np.concatenate((np.array([edges_red[0]-np.diff(edges_red).mean()]),
-                                  edges_red,
-                                  np.array([edges_red[-1]+np.diff(edges_red).mean()])))
+        thth_red,edges_red=thth_redmap(SS, tau, fd, eta, edges,fill_value=0)
         ##Calculate Eigenvectors/values
         w,V=eigh(thth_red)
         ##Use larges eigenvector/value as model
