@@ -63,7 +63,7 @@ def chisq_calc(SS, tau, fd, eta, edges,mask,N):
     thth2_red*=np.abs(w[np.abs(w)==np.abs(w).max()])
     thth2_red[thth_red==0]=0
     SS_rev=rev_map(thth2_red,tau,fd,eta,edges_red)
-    chisq=np.sum(((np.abs(SS_rev-SS_red2)**2)/N)[mask])
+    chisq=np.sum(((np.abs(SS_rev-SS)**2)/N)[mask])
     return(chisq)
 
 def rev_map(thth,tau,fd,eta,edges):
@@ -114,7 +114,7 @@ def eta_full(SS,fd,tau,mask,SS_red,fd_red,tau_red,mask_red,fd_lim,eta_low,eta_hi
     ##Calculate chisq for each eta
     for i in range(etas_abs.shape[0]):
         eta=etas_abs[i]
-        chisq_abs[i]=chisq_calc(SS_red, tau_red, fd_red, eta, edges,mask_red,N2)
+        chisq_abs[i]=chisq_calc(SS_red2, tau_red, fd_red, eta, edges,mask_red,N2)
         
     ##Find Region Around minimum
     C=chisq_abs.min()
