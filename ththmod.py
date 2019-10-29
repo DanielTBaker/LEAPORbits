@@ -131,7 +131,7 @@ def chisq_calc(SS, tau, fd, eta, edges,mask,N):
     thth2_red*=np.abs(w[np.abs(w)==np.abs(w).max()])
     thth2_red[thth_red==0]=0
     ##Invert model thth
-    SS_rev=rev_map(thth2_red,tau,fd,eta,edges_red)]
+    SS_rev=rev_map(thth2_red,tau,fd,eta,edges_red)
     ##Compare to data
     chisq=np.sum(((np.abs(SS_rev-SS)**2)/N)[mask])
     return(chisq)
