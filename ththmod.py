@@ -135,3 +135,18 @@ def chisq_calc(SS, tau, fd, eta, edges,mask,N):
     ##Compare to data
     chisq=np.sum(((np.abs(SS_rev-SS)**2)/N)[mask])
     return(chisq)
+
+def G_revmap(w,V,eta,edges,tau,fd):
+    th_cents=(edges[1:]+edges[:-1])/2
+    th_cents-=th_cents[np.abs(th_cents)==np.abs(th_cents).min()]
+    screen=np.conjugate(V[:,np.abs(w)==np.abs(w).max()][:,0]*np.sqrt(w[np.abs(w)==np.abs(w).max()]))
+#     screen/=np.abs(2*eta*th_cents).value
+    dtau=np.diff(tau).mean()
+    dfd=np.diff(fd).mean()
+    fd_map=(((th_cents*fd.unit)-fd[0] +dfd/2)//dfd).astype(int)
+    tau_map=(((eta*(th_cents*fd.unit)**2)-tau[0]+dtau/2)//dtau).astype(int)
+    pnts=(fd_map>0)*(tau_map>0)*(fd_map<fd.shape[0])*(tau_map<tau.shape[0])
+    SS_G=np.zeros((tau.shape[0],fd.shape[0]),dtype=complex)
+    SS_G[tau_map[pnts],fd_map[pnts]]=screen[pnts]
+    G=np.fft.ifft2(np.fft.ifftshift(SS_G))
+    return(G)
